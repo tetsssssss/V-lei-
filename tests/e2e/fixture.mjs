@@ -35,6 +35,7 @@ export function fixtureV2() {
       { id: 't-3', title: 'Tarefa teste 3', phase: 'Cerimônia', due: '', owner: 'Isabelle', done: false },
     ],
     timeline: [],
+    padrinhoFotos: [], nameEquivalences: [], sourceNotes: [],
     ideas: [
       { id: 'i-1', title: 'Ideia teste', category: 'Decoração', details: 'detalhe', votes: { a: 'sim', b: 'talvez' } },
     ],

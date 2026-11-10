@@ -544,6 +544,14 @@
     });
 
     def({
+      name: 'unlinkPadrinhoPhoto', risk: 'R1b', desc: 'Remove o vínculo de uma foto (a foto em si não é enviada a lugar nenhum).', input: { type: 'object', required: ['id'], properties: { id: S.str(60) } },
+      prepare(a) {
+        const p = (D().padrinhoFotos || []).find(x => x.id === a.id); if (!p) return fail('Não achei esse vínculo de foto.');
+        return prepared(`Remover o vínculo da foto "${p.label}"`, [D2('Foto', p.label, 'sem vínculo')], () => ({ ops: mut(dd => [OPS().remove(dd, 'padrinhoFotos', p.id)]), speak: 'Removi o vínculo. O par de padrinhos continua na lista.', ui: {} }));
+      },
+    });
+
+    def({
       name: 'confirmPhotoLink', risk: 'R1a', desc: 'Marca um vínculo de foto como revisado.', input: { type: 'object', required: ['id'], properties: { id: S.str(60) } },
       prepare(a) {
         const p = (D().padrinhoFotos || []).find(x => x.id === a.id); if (!p) return fail('Não achei esse vínculo de foto.');

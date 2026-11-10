@@ -48,7 +48,7 @@
       h('div', { class: 'iris-body' },
         h('div', { class: 'iris-left' },
           h('div', { class: 'iris-stage' }, orb.el, status, partial, specialist),
-          h('div', { class: 'iris-main' }, log, pendingEl),
+          h('div', { class: 'iris-main' }, log), pendingEl,
           h('form', { class: 'iris-dock', onsubmit: e => { e.preventDefault(); const t = input.value.trim(); if (t) { input.value = ''; session.sendText(t); } } },
             chipsEl, h('div', { class: 'iris-form' }, input, sendBtn), h('div', { class: 'iris-mic-row' }, micBtn, micLabel))),
         liveEl),
@@ -99,7 +99,12 @@
 
     // ---------- mensagens ----------
     const scrollLog = () => { log.scrollTop = log.scrollHeight; };
-    function addMsg(node) { log.append(node); scrollLog(); }
+    function addMsg(node) {
+      log.append(node);
+      // resposta da Íris: mostra o COMEÇO dela (o painel vivo ocupa espaço); demais mensagens: rola ao fim
+      if (node.classList.contains('iris-msg--iris') && log.scrollHeight > log.clientHeight) log.scrollTop += node.getBoundingClientRect().top - log.getBoundingClientRect().top - 4;
+      else scrollLog();
+    }
     function restoreHistory() {
       for (const m of store.get().conversation.slice(-30)) {
         if (m.role === 'user') addMsg(userNode(m)); else if (m.role === 'iris') addMsg(irisNode({ text: m.text, lines: [] }));
@@ -132,7 +137,7 @@
     }
 
     function renderPending() {
-      const p = engine.state().pending; clear(pendingEl); pendingEl.hidden = !p; if (!p) return;
+      const p = engine.state().pending; clear(pendingEl); pendingEl.hidden = !p; rootEl.classList.toggle('iris-has-pending', !!p); if (!p) return;
       pendingEl.setAttribute('data-risk', p.risk);
       const rows = (p.diff || []).map(d => h('tr', {}, h('th', { text: d.label }), h('td', {}, d.from !== null && d.from !== undefined && String(d.from) !== String(d.to) ? h('span', { class: 'from', text: String(d.from) }) : null, String(d.to))));
       pendingEl.append(h('h3', { text: p.needsTap ? 'Ação sensível: confirme com o toque' : 'Confirmar esta alteração?' }), h('table', { class: 'iris-diff' }, ...rows),
@@ -168,14 +173,15 @@
       renderPending();
     };
     hooks.onNotice = t => addMsg(h('div', { class: 'iris-msg iris-msg--error' }, h('p', { text: t })));
-    hooks.onUi = ui => {
+    hooks.onUi = (ui, turn) => {
       if (ui.theme) { store.setPref('theme', ui.theme); apply(); }
       if (ui.setActor) renderActor();
       if (ui.close) close();
       if (ui.openMemory) settings.openMemory();
       renderChips(ui.chips && ui.chips.length ? ui.chips : null);
-      if (ui.panel && Iris.livePanels) Iris.livePanels.show(ui.panel, ns, liveEl, { engine });
+      if (ui.panel && Iris.livePanels) { Iris.livePanels.show(ui.panel, ns, liveEl, { engine, turn }); rootEl.classList.add('iris-has-live'); }
       if (ui.opened || ui.showPhotos) { if (mode === 'full') setMode('peek'); }
+      if (ui.showPhotos && Iris.padrinhosFotos) Iris.padrinhosFotos.spotlight();
       if (ui.focusConfirm) { const c = doc.getElementById('iris-confirm'); c && c.focus(); }
       renderPending();
     };
