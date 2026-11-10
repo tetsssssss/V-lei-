@@ -126,11 +126,11 @@ test('OpenAI-compatível: converte tool_use/tool_result e mapeia a resposta (ups
   assert.deepEqual(msgs[2].tool_calls[0], { id: 'c1', type: 'function', function: { name: 'f', arguments: '{"a":1}' } });
   assert.deepEqual(msgs[3], { role: 'tool', tool_call_id: 'c1', content: 'resultado' });
   const up = await fakeUpstream((c, rs) => { rs.writeHead(200, { 'content-type': 'application/json' }); rs.end(JSON.stringify({ choices: [{ message: { content: null, tool_calls: [{ id: 'x', type: 'function', function: { name: 'g', arguments: '{"b":2}' } }] } }] })); });
-  const url = await start(base({ IRIS_LLM_PROVIDER: 'openai', OPENAI_API_KEY: 'chave-openai-falsa', OPENAI_BASE_URL: up.url })); const token = await login(url);
+  const url = await start(base({ IRIS_LLM_PROVIDER: 'openai', OPENAI_API_KEY: 'chave-openai-falsa', IRIS_LLM_MODEL: 'modelo-de-teste', OPENAI_BASE_URL: up.url })); const token = await login(url);
   const r = await (await fetch(`${url}/api/iris/chat`, { method: 'POST', headers: { authorization: `Bearer ${token}` }, body: JSON.stringify({ messages: [{ role: 'user', content: 'oi' }], tools: [{ name: 'g', description: 'd', input_schema: { type: 'object', properties: {} } }] }) })).json();
   assert.deepEqual(r.toolCalls, [{ id: 'x', name: 'g', input: { b: 2 } }]);
   assert.equal(up.calls[0].url, '/chat/completions'); assert.equal(up.calls[0].headers.authorization, 'Bearer chave-openai-falsa');
-  assert.equal(JSON.parse(up.calls[0].body.toString()).tools[0].function.name, 'g');
+  assert.equal(JSON.parse(up.calls[0].body.toString()).tools[0].function.name, 'g'); assert.equal(JSON.parse(up.calls[0].body.toString()).model, 'modelo-de-teste');
 });
 
 test('STT/TTS OpenAI-compatíveis: multipart e JSON corretos (upstream falso)', async () => {
@@ -140,4 +140,13 @@ test('STT/TTS OpenAI-compatíveis: multipart e JSON corretos (upstream falso)', 
   assert.match(up.calls[0].headers['content-type'], /^multipart\/form-data/); assert.match(up.calls[0].body.toString('latin1'), /name="language"\r\n\r\npt/); assert.match(up.calls[0].body.toString('latin1'), /name="model"\r\n\r\nwhisper-1/);
   const t = await fetch(`${url}/api/iris/tts`, { method: 'POST', headers: auth, body: JSON.stringify({ text: 'oi' }) }); assert.equal(t.headers.get('content-type'), 'audio/mpeg');
   assert.deepEqual(JSON.parse(up.calls[1].body.toString()), { model: 'tts-1', voice: 'nova', input: 'oi', response_format: 'mp3' });
+});
+
+test('OpenAI/ChatGPT: exige chave E modelo; o health lista só os NOMES do que falta', async () => {
+  const a = await (await fetch(`${await start(base({ IRIS_LLM_PROVIDER: 'openai' }))}/api/iris/health`)).json();
+  assert.equal(a.llm.configured, false); assert.deepEqual(a.llm.missing, ['OPENAI_API_KEY', 'IRIS_LLM_MODEL']);
+  const b = await (await fetch(`${await start(base({ IRIS_LLM_PROVIDER: 'openai', OPENAI_API_KEY: 'k-falsa-de-teste' }))}/api/iris/health`)).json();
+  assert.deepEqual(b.llm.missing, ['IRIS_LLM_MODEL']);
+  const c = await (await fetch(`${await start(base({ IRIS_LLM_PROVIDER: 'openai', OPENAI_API_KEY: 'k-falsa-de-teste', IRIS_LLM_MODEL: 'modelo-de-teste' }))}/api/iris/health`)).json();
+  assert.equal(c.llm.configured, true); assert.equal(c.llm.provider, 'openai'); assert.ok(!JSON.stringify(c).includes('k-falsa-de-teste'));
 });

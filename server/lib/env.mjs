@@ -17,7 +17,7 @@ export function readConfig(env = process.env) {
   return {
     passcode: n('IRIS_PASSCODE', ''), tokenSecret: n('IRIS_TOKEN_SECRET', ''),
     allowedOrigins: n('ALLOWED_ORIGINS', '').split(',').map(s => s.trim()).filter(Boolean),
-    llm: { provider: llm, model: n('IRIS_LLM_MODEL', 'claude-sonnet-5-5'), anthropicKey: n('ANTHROPIC_API_KEY', ''), anthropicBase: n('ANTHROPIC_BASE_URL', 'https://api.anthropic.com'), openaiKey: n('OPENAI_API_KEY', ''), openaiBase: n('OPENAI_BASE_URL', 'https://api.openai.com/v1') },
+    llm: { provider: llm, model: n('IRIS_LLM_MODEL', llm === 'anthropic' || llm === 'mock' || llm === '' ? 'claude-sonnet-5-5' : ''), anthropicKey: n('ANTHROPIC_API_KEY', ''), anthropicBase: n('ANTHROPIC_BASE_URL', 'https://api.anthropic.com'), openaiKey: n('OPENAI_API_KEY', ''), openaiBase: n('OPENAI_BASE_URL', 'https://api.openai.com/v1') },
     stt: { provider: stt, model: n('IRIS_STT_MODEL', 'whisper-1') }, tts: { provider: tts, model: n('IRIS_TTS_MODEL', 'tts-1'), voice: n('IRIS_TTS_VOICE', 'nova') },
     port: Number(n('PORT', '8080')) || 8080,
   };
@@ -25,11 +25,15 @@ export function readConfig(env = process.env) {
 
 /** O que cada serviço realmente tem para funcionar (só booleanos, nunca valores). */
 export function capabilities(cfg) {
-  const llm = cfg.llm.provider === 'mock' || (cfg.llm.provider === 'anthropic' && !!cfg.llm.anthropicKey) || (cfg.llm.provider === 'openai' && !!cfg.llm.openaiKey);
+  // Lista só os NOMES das variáveis que faltam (nunca valores) para a tela dizer o que fazer.
+  const missing = [];
+  if (cfg.llm.provider === 'anthropic' && !cfg.llm.anthropicKey) missing.push('ANTHROPIC_API_KEY');
+  if (cfg.llm.provider === 'openai') { if (!cfg.llm.openaiKey) missing.push('OPENAI_API_KEY'); if (!cfg.llm.model) missing.push('IRIS_LLM_MODEL'); }
+  const llm = cfg.llm.provider === 'mock' || (['anthropic', 'openai'].includes(cfg.llm.provider) && missing.length === 0);
   const voiceKey = !!cfg.llm.openaiKey;
   return {
     auth: !!cfg.passcode && cfg.tokenSecret.length >= 16,
-    llm: { configured: llm, provider: llm ? cfg.llm.provider : null },
+    llm: { configured: llm, provider: llm ? cfg.llm.provider : null, ...(missing.length ? { missing } : {}) },
     stt: { configured: cfg.stt.provider === 'mock' || (cfg.stt.provider === 'openai' && voiceKey) },
     tts: { configured: cfg.tts.provider === 'mock' || (cfg.tts.provider === 'openai' && voiceKey) },
   };
