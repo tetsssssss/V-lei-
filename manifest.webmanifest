@@ -1,7 +1,7 @@
 {
   "name": "Gabriel & Isabelle · Nosso Sim",
   "short_name": "G & I · Nosso Sim",
-  "description": "Planejamento do casamento de Gabriel e Isabelle em 13/11/2027 na Chácara Veneza",
+  "description": "Planejamento do casamento de Gabriel e Isabelle, com a assistente de voz Íris",
   "start_url": "./index.html",
   "scope": "./",
   "display": "standalone",
@@ -20,6 +20,21 @@
       "sizes": "512x512",
       "type": "image/png",
       "purpose": "any maskable"
+    }
+  ],
+  "shortcuts": [
+    {
+      "name": "Conversar com a Íris",
+      "short_name": "Íris",
+      "description": "Abrir a assistente de voz",
+      "url": "./index.html?iris=1",
+      "icons": [
+        {
+          "src": "icons/icon-192.png",
+          "sizes": "192x192",
+          "type": "image/png"
+        }
+      ]
     }
   ]
 }

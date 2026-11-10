@@ -1,0 +1,12 @@
+# Deploy do FRONTEND público: publique a pasta do ZIP de deploy (sem dados pessoais).
+# Para o backend opcional, use o ZIP "BACKEND_OPCIONAL" e configure as variáveis de ambiente no painel.
+[build]
+  publish = "."
+[functions]
+  directory = "netlify/functions"
+[[headers]]
+  for = "/*"
+  [headers.values]
+    X-Content-Type-Options = "nosniff"
+    Referrer-Policy = "no-referrer"
+    Permissions-Policy = "microphone=(self), camera=(), geolocation=()"

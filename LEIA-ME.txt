@@ -57,3 +57,11 @@ ATUALIZAÇÃO V2.1 - FOTOS DO CASAL
 Quatro fotos do casal foram incluídas na capa e na aba Nossa história.
 O site público contém as quatro fotos. Só publique com consentimento de Gabriel e Isabelle.
 O pacote para Claude contém referências privadas em pasta separada: não enviar essa pasta para a hospedagem pública.
+
+
+ATUALIZAÇÃO V3.0 - ASSISTENTE DE VOZ ÍRIS
+Nova assistente de voz feminina pt-BR (nome configurável), central de comando com painéis, fotos dos padrinhos e backend opcional.
+- Voz: Chrome em https ou localhost. Sem escuta em segundo plano; o microfone só liga quando você toca.
+- Os dados continuam locais em cada aparelho (nada de sincronização entre celulares).
+- Para rodar, publicar e configurar: docs/COMO_RODAR_A_IRIS.md. Privacidade: docs/PRIVACIDADE.md. O que não está ativo: docs/STATUS_NAO_ATIVO.md.
+- O ZIP de deploy público NÃO traz dados pessoais: abre vazio; importe o backup JSON.

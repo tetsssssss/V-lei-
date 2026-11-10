@@ -48,7 +48,7 @@ const FORBIDDEN_OK = [/(^|\/)\.env\.example$/];
 const SECRET_RES = [
   [/sk-ant-[A-Za-z0-9_-]{16,}/, 'chave Anthropic'], [/sk-[A-Za-z0-9]{32,}/, 'chave estilo OpenAI'], [/AKIA[0-9A-Z]{16}/, 'chave AWS'],
   [/-----BEGIN [A-Z ]*PRIVATE KEY-----/, 'chave privada PEM'], [/xox[baprs]-[A-Za-z0-9-]{10,}/, 'token Slack'], [/ghp_[A-Za-z0-9]{30,}/, 'token GitHub'],
-  [/\b(?:API[_-]?KEY|SECRET|TOKEN|PASSWORD|PASSCODE)\b\s*[:=]\s*['"]?(?!\s*['"]?$)[A-Za-z0-9_\-./+]{16,}/i, 'atribuição de segredo com valor'],
+  [/[A-Za-z0-9_]*(?:API[_-]?KEY|SECRET|TOKEN|PASSWORD|PASSCODE)[A-Za-z0-9_]*\s*[:=]\s*['"]?[A-Za-z0-9_\-./+]{16,}/i, 'atribuição de segredo com valor', 'generic'],
 ];
 // Nomes de VOZES sintéticas públicas (Apple/Microsoft/Google) coincidem com primeiros nomes comuns: liberados só neste arquivo.
 const ALLOW_TOKENS = [{ file: /(^|\/)voice\/tts\.js$/, tokens: ['maria', 'antonio', 'luciana', 'giovanna', 'daniel', 'felipe', 'ricardo', 'thiago', 'jose', 'jorge', 'marcos', 'camila', 'fernanda', 'francisca', 'vitoria', 'leticia', 'raquel', 'heloisa', 'manuela', 'joana', 'brenda', 'thalita', 'yara', 'donato', 'tiago'] }];
@@ -72,7 +72,7 @@ function scanBuffer(where, buf) {
     for (const tk of names.tokens) if (!allowed.has(tk) && new RegExp(`(^|[^a-z])${tk}([^a-z]|$)`).test(norm)) add(where, 'NOME REAL', `token "${tk.slice(0, 2)}…" (${tk.length} letras)`);
   }
   if (/seed-casal\.js$/.test(where) && /window\.NS_SEED\s*=\s*\{[^}]*(guests|couples)/.test(text)) add(where, 'SEED REAL', 'seed de convidados/padrinhos presente');
-  for (const [re, label] of SECRET_RES) if (re.test(text) && !/\.env\.example$/.test(where)) add(where, 'SEGREDO', label);
+  for (const [re, label, kind] of SECRET_RES) if (re.test(text) && !/\.env\.example$/.test(where) && !(kind === 'generic' && /(^|\/)tests\//.test(where.replaceAll('\\', '/')))) add(where, 'SEGREDO', label); // valores FALSOS de teste vivem em tests/
 }
 
 function scanPathName(where) {

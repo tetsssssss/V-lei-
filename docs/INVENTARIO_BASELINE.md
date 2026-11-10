@@ -38,3 +38,7 @@ Cobre: abertura sem erros de console e **zero requests externos**; as 13 seçõe
 
 ## Referência visual (para a Íris combinar)
 Sidebar bordô `#4d303b`, texto creme, fundo `#fbf9f6`, títulos Georgia, acento dourado `#c49a65`, rosé `#a96974`, cartões brancos com raio 22 px.
+
+## Fechamento (V3.0)
+- A **mesma suíte baseline** roda hoje contra o app modificado: **38/38**, igual ao original. Registrado também no relatório de mudanças.
+- Riscos 1–6 acima: tratados (ver `RELATORIO_DE_MUDANCAS.md`, seção 5). O risco 7 (import de um arquivo de backup v1) segue como observação **sem teste dedicado**: o que está testado é a migração do `localStorage` legado v1 no carregamento, que preserva os dados do usuário.

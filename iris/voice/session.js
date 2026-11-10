@@ -11,7 +11,7 @@
   function createSession({ engine, store, stt, tts, mic, hooks = {} }) {
     const prefs = () => store.get().prefs, consent = () => store.get().consent;
     const h = (n, ...a) => { try { hooks[n] && hooks[n](...a); } catch (e) { console.warn('[Íris hook]', n, e); } };
-    let state = 'idle', rec = null, speaking = null, lastSpoken = '', convoT = null, token = 0, convoActive = false, errT = null, audioCtx = null;
+    let state = 'idle', rec = null, speaking = null, lastSpoken = '', convoT = null, token = 0, convoOff = false, errT = null, audioCtx = null;
     const online = () => (root.navigator ? navigator.onLine !== false : true);
 
     const setState = (s, meta) => { if (s === state && !meta) return; state = s; h('onState', s, meta || {}); };
@@ -51,7 +51,7 @@
       if (!mic.secure()) return fail(mic.MESSAGES.insecure, 'insecure');
       if (!consent().voice) { h('onNeedConsent'); return; }
       if (!online()) { setState('offline'); h('onMessage', { role: 'error', text: 'Sem internet: o reconhecimento de voz do navegador precisa de conexão. Você pode digitar.' }); return; }
-      const my = ++token; convoActive = fromConvo; stopSpeaking(true);
+      const my = ++token; if (!fromConvo) convoOff = false; stopSpeaking(true);
       const perm = await mic.permissionState();
       if (my !== token) return;
       if (perm === 'denied') return fail(mic.MESSAGES.denied, 'denied');
@@ -65,7 +65,7 @@
       rec.on('start', () => { if (my === token) { setState('listening'); beep(660); } })
         .on('partial', t => { if (my === token) h('onPartial', t); })
         .on('final', t => { if (my === token) onFinal(t); })
-        .on('error', e => { if (my !== token) return; if (fromConvo && e.code === 'no-speech') { convoActive = false; return fail('', e.code, true); } fail(e.message, e.code); })
+        .on('error', e => { if (my !== token) return; if (fromConvo && e.code === 'no-speech') { convoOff = true; return fail('', e.code, true); } fail(e.message, e.code); })
         .on('end', () => { if (my === token && state === 'listening') setState('idle'); });
       rec.start();
     }
@@ -85,28 +85,33 @@
       try { turn = await Promise.resolve(engine.handle(text, { actor: prefs().speakingAs || '' })); }
       catch (e) { console.warn('[Íris]', e); turn = { speak: 'Algo deu errado ao processar esse pedido. Nada foi alterado. Tente de novo.', lines: [], ui: {}, ok: false }; }
       if (my !== token) return;
-      await present(turn, my);
+      if (turn && turn.ui && turn.ui.unknown && hooks.external) { // o motor local não entendeu: tenta a IA externa (se houver consentimento e login)
+        try { const ext = await hooks.external(text); if (my !== token) return; if (ext) turn = ext; }
+        catch (e) { h('onNotice', (e && e.message) || 'A IA externa não respondeu; usei o modo local.'); }
+      }
+      await present(turn, my, via);
     }
 
     /** Mostra um turno (mensagem + efeitos de UI + fala). Usado pela voz, pelo texto E pelos botões (confirmar/cancelar/desfazer). */
-    async function present(turn, my = ++token) {
+    async function present(turn, my = ++token, via) {
       const ui = turn.ui || {};
       if (ui.changed) { setState('acting'); await sleep(380); if (my !== token) return; }
       if (ui.stop) stopSpeaking();
       if (ui.speakOn !== undefined) store.setPref('speakOn', !!ui.speakOn);
       if (ui.setActor) store.setPref('speakingAs', ui.setActor);
-      if (ui.endConversation) convoActive = false;
+      if (ui.endConversation) convoOff = true;
       if (turn.speak || (turn.lines && turn.lines.length) || turn.pending) h('onMessage', { role: 'iris', text: turn.speak, lines: turn.lines || [], pending: turn.pending, ui, specialist: turn.specialist, ok: turn.ok });
       h('onUi', ui, turn);
-      if (ui.repeat) { await repeat({ rate: ui.rate }); return afterTurn(turn); }
+      if (ui.repeat) { await repeat({ rate: ui.rate }); return afterTurn(turn, via); }
       if (turn.speak && prefs().speakOn) await speakText(turn.speak); else if (state !== 'error') setState('idle');
-      afterTurn(turn);
+      afterTurn(turn, via);
     }
 
-    function afterTurn(turn) {
+    function afterTurn(turn, via) {
       const ui = (turn && turn.ui) || {};
-      if (prefs().conversationMode && convoActive !== false && !ui.endConversation && !ui.close && !turn.pending && state === 'idle') {
-        convoActive = true; convoT = setTimeout(() => startListening({ fromConvo: true }), 700);
+      // modo conversa (opt-in): só depois de turnos FALADOS; encerra por "obrigada", silêncio, fechar ou toque
+      if (via === 'voz' && prefs().conversationMode && !convoOff && !ui.endConversation && !ui.close && !turn.pending && state === 'idle') {
+        convoT = setTimeout(() => startListening({ fromConvo: true }), 700);
       }
     }
 
@@ -139,7 +144,7 @@
     }
     function sendText(text) { const t = String(text || '').trim(); if (!t) return; stopSpeaking(true); if (rec) { try { rec.abort(); } catch (_) {} } return handleInput(t, 'texto'); }
     function abortAll() {
-      token++; clearTimeout(convoT); clearTimeout(errT); convoActive = false;
+      token++; clearTimeout(convoT); clearTimeout(errT); convoOff = true;
       if (rec) { try { rec.abort(); } catch (_) {} rec = null; }
       stopSpeaking(true); h('onPartial', ''); setState(online() ? 'idle' : 'offline');
     }

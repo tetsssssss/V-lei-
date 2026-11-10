@@ -1,0 +1,16 @@
+{
+  "name": "nosso-sim-iris",
+  "version": "3.0.0",
+  "private": true,
+  "description": "Nosso Sim (planejamento do casamento) com a assistente de voz \u00cdris. Sem depend\u00eancias de runtime.",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "start": "node server/server.mjs",
+    "test": "node --test tests/unit/*.test.mjs tests/server/*.test.mjs",
+    "test:e2e": "node tests/e2e/baseline.mjs --root . && node tests/e2e/iris.mjs --root . && node tests/e2e/padrinhos.mjs --root . && node tests/e2e/central.mjs --root . && node tests/e2e/ux.mjs --root . && node tests/e2e/backend.mjs",
+    "build": "node scripts/build-packages.mjs",
+    "leak-scan": "node scripts/leak-scan.mjs --tracked"
+  }
+}

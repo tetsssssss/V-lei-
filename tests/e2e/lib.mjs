@@ -66,8 +66,8 @@ export function makeReporter(title) {
 }
 
 /** Abre uma página com monitoramento de console/pageerror/requests externos. */
-export async function openPage(browser, baseUrl, { viewport, storage, init, url, permissions } = {}) {
-  const context = await browser.newContext({ viewport: viewport || { width: 1280, height: 900 }, permissions: permissions || [], serviceWorkers: 'block' });
+export async function openPage(browser, baseUrl, { viewport, storage, init, url, permissions, serviceWorkers } = {}) {
+  const context = await browser.newContext({ viewport: viewport || { width: 1280, height: 900 }, permissions: permissions || [], serviceWorkers: serviceWorkers || 'block' });
   if (storage) {
     await context.addInitScript(([k, v]) => { try { if (!localStorage.getItem(k)) localStorage.setItem(k, v); } catch (_) {} }, storage);
   }

@@ -12,7 +12,7 @@
     prefs: {
       name: 'Íris', theme: 'romantico', speakOn: true, rate: 1, volume: 1, voiceURI: '',
       reviewBeforeSend: false, reduceMotion: 'auto', conversationMode: false, sounds: false,
-      speakingAs: '', introDone: false, retentionDays: 30, briefingOnOpen: true,
+      speakingAs: '', introDone: false, retentionDays: 30, briefingOnOpen: true, sttEngine: 'browser', ttsEngine: 'browser',
     },
     consent: { voice: false, externalAI: false, level: 0 }, // level 0 = só agregados; 1 = +nomes de fornecedores/ideias/tarefas; 2 = +nomes de convidados
     conversation: [], memory: [], audit: [],

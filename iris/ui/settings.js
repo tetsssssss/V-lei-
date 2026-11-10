@@ -56,13 +56,13 @@
         h('input', { type: 'text', id: 'iris-name', maxlength: '20', value: prefs().name, onchange: e => { const v = e.target.value.trim() || 'Íris'; store.setPref('name', v); apply(); } })));
 
       // Privacidade
-      const ext = remote && remote.configuredEndpoint();
+      const hc = remote && remote.configuredEndpoint() ? await remote.health() : { configured: false };
+      const extNodes = externalBlock(hc);
       b.append(h('div', { class: 'iris-set' }, h('h4', { text: 'Privacidade e dados' }),
         h('p', { text: 'Seus dados do casamento ficam só neste aparelho. A voz é reconhecida pelo serviço de voz do navegador (no Chrome, o áudio passa pelo Google). Nenhum áudio é guardado por mim, nem fotos ou listas completas são enviadas.' }),
         h('div', { class: 'iris-row' }, h('span', { class: 'iris-badge', 'data-on': consent().voice ? '1' : '0', text: consent().voice ? 'Voz autorizada' : 'Voz ainda não autorizada' }),
           h('button', { class: 'iris-btn', onclick: () => { store.setConsent('voice', false); renderSettings(); } }, 'Revogar')),
-        h('div', { class: 'iris-row' }, h('span', { class: 'iris-badge', 'data-on': ext ? '1' : '0', text: ext ? 'IA externa: endpoint configurado' : 'IA externa não configurada' })),
-        sw('iris-sw-ext', consent().externalAI && ext, v => store.setConsent('externalAI', v), 'Usar IA externa (opcional)', ext ? '' : 'Indisponível: nenhum backend configurado.'),
+        ...extNodes,
         h('label', { for: 'iris-level' }, 'O que posso enviar à IA externa'),
         h('select', { id: 'iris-level', onchange: e => store.setConsent('level', Number(e.target.value)) },
           h('option', { value: '0', selected: consent().level === 0, text: 'Só totais e contagens (padrão)' }), h('option', { value: '1', selected: consent().level === 1, text: '+ nomes de fornecedores, ideias e tarefas' }), h('option', { value: '2', selected: consent().level === 2, text: '+ nomes de convidados' })),
@@ -77,6 +77,24 @@
       b.append(h('div', { class: 'iris-set' }, h('h4', { text: 'Este aparelho' }),
         h('p', { text: `Reconhecimento de voz: ${yn(caps.stt)} · Síntese de voz: ${yn(caps.tts)} · Vozes em português: ${caps.voices} · Conexão: ${yn(caps.online)} · Página segura (https/localhost): ${yn(caps.secure)}` }),
         h('p', { text: 'Funciona no Chrome (Android e computador). Em outros navegadores o reconhecimento pode não existir; o campo de texto faz tudo igual. O app não escuta em segundo plano.' })));
+    }
+
+    function externalBlock(hc) {
+      const ok = remote && remote.configuredEndpoint();
+      if (!ok) return [h('div', { class: 'iris-row' }, h('span', { class: 'iris-badge', 'data-on': '0', text: 'IA externa não configurada' })), h('small', { text: 'Sem backend, tudo roda no aparelho com o modo local. O README explica como configurar, se quiserem.' })];
+      if (!hc.auth) return [h('div', { class: 'iris-row' }, h('span', { class: 'iris-badge', 'data-on': '0', text: 'Backend encontrado, mas sem senha configurada' }))];
+      const nodes = [h('div', { class: 'iris-row' }, h('span', { class: 'iris-badge', 'data-on': hc.llm && hc.llm.configured ? '1' : '0', text: hc.llm && hc.llm.configured ? `IA: ${hc.llm.provider}` : 'IA externa não configurada' }), h('span', { class: 'iris-badge', 'data-on': hc.stt && hc.stt.configured ? '1' : '0', text: hc.stt && hc.stt.configured ? 'Voz→texto externa' : 'Voz→texto: só navegador' }), h('span', { class: 'iris-badge', 'data-on': hc.tts && hc.tts.configured ? '1' : '0', text: hc.tts && hc.tts.configured ? 'Voz externa' : 'Voz: só navegador' }))];
+      if (!remote.loggedIn()) {
+        const pass = h('input', { type: 'password', id: 'iris-pass', placeholder: 'Senha do casal', autocomplete: 'current-password', 'aria-label': 'Senha do backend' }), msg = h('small', { id: 'iris-pass-msg' });
+        nodes.push(h('form', { class: 'iris-form', onsubmit: async e => { e.preventDefault(); try { await remote.login(pass.value); pass.value = ''; renderSettings(); } catch (err) { msg.textContent = err.message; } } }, pass, h('button', { class: 'iris-btn iris-btn--primary', type: 'submit' }, 'Entrar')), msg);
+        return nodes;
+      }
+      const llm = hc.llm && hc.llm.configured;
+      nodes.push(h('div', { class: 'iris-row' }, h('span', { class: 'iris-badge', 'data-on': '1', text: 'Conectado ao backend' }), h('button', { class: 'iris-btn', onclick: () => { remote.logout(); store.setConsent('externalAI', false); renderSettings(); } }, 'Sair')),
+        sw('iris-sw-ext', consent().externalAI && llm, v => store.setConsent('externalAI', v), 'Usar IA externa quando eu não entender', llm ? 'O modo local sempre tenta primeiro.' : 'O backend não tem IA configurada.'));
+      const sel = (id, key, label, avail) => [h('label', { for: id }, label), h('select', { id, disabled: !avail, onchange: e => store.setPref(key, e.target.value) }, h('option', { value: 'browser', selected: prefs()[key] !== 'remote', text: 'Do navegador' }), h('option', { value: 'remote', selected: prefs()[key] === 'remote', text: 'Do backend' }))];
+      nodes.push(...sel('iris-stt-eng', 'sttEngine', 'Reconhecimento de voz', hc.stt && hc.stt.configured), ...sel('iris-tts-eng', 'ttsEngine', 'Voz da Íris', hc.tts && hc.tts.configured));
+      return nodes;
     }
 
     function renderMemory() {
