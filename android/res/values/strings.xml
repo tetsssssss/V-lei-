@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">__APP_NAME__</string>
+    <string name="shortcut_iris">Conversar com a Íris</string>
+    <string name="shortcut_iris_long">Abrir a assistente de voz Íris</string>
+</resources>

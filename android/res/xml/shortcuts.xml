@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<shortcuts xmlns:android="http://schemas.android.com/apk/res/android">
+    <shortcut
+        android:shortcutId="iris"
+        android:enabled="true"
+        android:icon="@mipmap/ic_launcher"
+        android:shortcutShortLabel="@string/shortcut_iris"
+        android:shortcutLongLabel="@string/shortcut_iris_long">
+        <intent
+            android:action="android.intent.action.VIEW"
+            android:targetPackage="__PACKAGE__"
+            android:targetClass="br.nossosim.iris.MainActivity"
+            android:data="https://appassets.androidplatform.net/index.html?iris=1" />
+    </shortcut>
+</shortcuts>

@@ -93,3 +93,10 @@ Dados locais por aparelho (sem sincronização); voz só no Chrome e em https/lo
 
 ## 11. Estado do GitHub
 Código público-seguro enviado para a branch `claude/peaceful-lovelace-ak2wd7`. **O PR draft não pôde ser criado**: o repositório remoto está vazio (sem `main`), então não há branch-base. Crie a `main` (por exemplo, adicionando um README pelo site do GitHub) e abra o PR dessa branch, ou me diga outra base.
+
+## 12. Adendo: APK Android
+- **Entregue:** `NossoSim-Iris-v3.0.0-PRIVADO.apk` e `…-PUBLICO.apk` (mesma assinatura), construídos por `scripts/build-apk.mjs` com `aapt`, `javac`, `dx`, `zipalign` e `apksigner` (pacotes do Ubuntu, sem o SDK completo da Google, que estava bloqueado aqui).
+- **Arquitetura:** WebView sem dependências servindo os arquivos do APK em `https://appassets.androidplatform.net` (contexto seguro); como o WebView **não tem Web Speech**, a voz usa `SpeechRecognizer` e `TextToSpeech` nativos do Android via `window.IrisAndroid`; salvar backup em Downloads; botão voltar; seletor de arquivos; atalho do ícone; navegação restrita à própria origem; `allowBackup=false`; sem tráfego em texto puro; só as permissões `RECORD_AUDIO` e `INTERNET`.
+- **Verificado:** assinatura (`apksigner verify`), manifest/permissões/SDK (`aapt dump`), presença de classes e assets no dex/APK, scan anti-vazamento no APK público (e confirmação de que o scanner **reprova** o privado), 13 verificações do JS da ponte com **ponte simulada**.
+- **NÃO verificado:** o Java **nunca rodou** (sem emulador/aparelho). Riscos conhecidos: comportamento do `SpeechRecognizer` conforme o fabricante e o app Google instalado; `onShowFileChooser`/permissões em versões específicas; ícone sem versão adaptativa. Compilado contra a API 23 (único `android.jar` disponível) com `targetSdk 34`.
+- O variante PRIVADO embute dados pessoais no arquivo: é para uso dos dois, nunca para publicar.

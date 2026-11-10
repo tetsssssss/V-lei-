@@ -59,7 +59,7 @@
       const hc = remote && remote.configuredEndpoint() ? await remote.health() : { configured: false };
       const extNodes = externalBlock(hc);
       b.append(h('div', { class: 'iris-set' }, h('h4', { text: 'Privacidade e dados' }),
-        h('p', { text: 'Seus dados do casamento ficam só neste aparelho. A voz é reconhecida pelo serviço de voz do navegador (no Chrome, o áudio passa pelo Google). Nenhum áudio é guardado por mim, nem fotos ou listas completas são enviadas.' }),
+        h('p', { text: 'Seus dados do casamento ficam só neste aparelho. A voz é reconhecida pelo serviço de voz do navegador ou do Android (o áudio passa pelo Google). Nenhum áudio é guardado por mim, nem fotos ou listas completas são enviadas.' }),
         h('div', { class: 'iris-row' }, h('span', { class: 'iris-badge', 'data-on': consent().voice ? '1' : '0', text: consent().voice ? 'Voz autorizada' : 'Voz ainda não autorizada' }),
           h('button', { class: 'iris-btn', onclick: () => { store.setConsent('voice', false); renderSettings(); } }, 'Revogar')),
         ...extNodes,

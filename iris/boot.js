@@ -15,9 +15,12 @@
   // STT/TTS: navegador (padrão) ou externo (só se configurado + autenticado + escolhido nas configurações)
   const remoteOn = k => store.get().prefs[k] === 'remote' && Iris.remote && Iris.remote.llmReady() !== undefined && Iris.remote.loggedIn();
   let rSTT = null, rTTS = null; const getRSTT = () => (rSTT = rSTT || Iris.remote.sttAdapter()), getRTTS = () => (rTTS = rTTS || Iris.remote.ttsAdapter());
-  const sttEngine = () => (remoteOn('sttEngine') ? getRSTT() : Iris.stt), ttsEngine = () => (remoteOn('ttsEngine') ? getRTTS() : Iris.tts);
+  // No APK Android o WebView não tem Web Speech: usa o reconhecimento/síntese NATIVOS (IrisAndroid).
+  const native = Iris.native && Iris.native.available();
+  let nSTT = null, nTTS = null; const getNSTT = () => (nSTT = nSTT || Iris.native.sttAdapter()), getNTTS = () => (nTTS = nTTS || Iris.native.ttsAdapter());
+  const sttEngine = () => (remoteOn('sttEngine') ? getRSTT() : native ? getNSTT() : Iris.stt), ttsEngine = () => (remoteOn('ttsEngine') ? getRTTS() : native ? getNTTS() : Iris.tts);
   const sttProxy = { supported: () => sttEngine().supported(), create: o => sttEngine().create(o) };
-  const ttsProxy = { supported: () => ttsEngine().supported(), rank: v => ttsEngine().rank(v), loadVoices: t => ttsEngine().loadVoices(t), guess: v => ttsEngine().guess(v), chunk: x => ttsEngine().chunk(x), speak: (t, o) => ttsEngine().speak(t, o), cancelAll: () => { Iris.tts.cancelAll(); if (rTTS) rTTS.cancelAll(); } };
+  const ttsProxy = { supported: () => ttsEngine().supported(), rank: v => ttsEngine().rank(v), loadVoices: t => ttsEngine().loadVoices(t), guess: v => ttsEngine().guess(v), chunk: x => ttsEngine().chunk(x), speak: (t, o) => ttsEngine().speak(t, o), cancelAll: () => { Iris.tts.cancelAll(); if (rTTS) rTTS.cancelAll(); if (nTTS) nTTS.cancelAll(); } };
   const session = Iris.session.createSession({ engine, store, stt: sttProxy, tts: ttsProxy, mic: Iris.mic, hooks });
   // IA externa: só se o casal ligou, há login e o backend tem LLM; o motor local sempre tenta primeiro.
   hooks.external = async text => (store.get().consent.externalAI && Iris.remote.llmReady() ? Iris.remote.ask(text, { ns, engine, tools, store }) : null);

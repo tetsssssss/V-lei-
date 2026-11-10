@@ -43,7 +43,7 @@ function privateHashes() {
   return hashes;
 }
 
-const FORBIDDEN_PATH = [/(^|\/)private\//, /(^|\/)fontes_do_casal\//, /(^|\/)referencias_privadas\//, /(^|\/)fotos_padrinhos\//, /(^|\/)assets\/padrinhos\//, /(^|\/)assets\/casal\//, /\.pdf$/i, /(^|\/)preview-[^/]*\.png$/i, /nosso-sim-backup-.*\.json$/i, /(^|\/)\.env(\.[^/]*)?$/];
+const FORBIDDEN_PATH = [/(^|\/)private\//, /(^|\/)fontes_do_casal\//, /(^|\/)referencias_privadas\//, /(^|\/)fotos_padrinhos\//, /(^|\/)assets\/padrinhos\//, /(^|\/)assets\/casal\//, /\.pdf$/i, /(^|\/)preview-[^/]*\.png$/i, /nosso-sim-backup-.*\.json$/i, /(^|\/)\.env(\.[^/]*)?$/, /\.(keystore|jks)$/i, /chave-senha\.txt$/i];
 const FORBIDDEN_OK = [/(^|\/)\.env\.example$/];
 const SECRET_RES = [
   [/sk-ant-[A-Za-z0-9_-]{16,}/, 'chave Anthropic'], [/sk-[A-Za-z0-9]{32,}/, 'chave estilo OpenAI'], [/AKIA[0-9A-Z]{16}/, 'chave AWS'],
@@ -116,7 +116,7 @@ for (const a of args) {
   if (a === '--tracked') {
     const out = execFileSync('git', ['ls-files', '-z', '--cached', '--others', '--exclude-standard'], { cwd: ROOT, encoding: 'utf8' });
     for (const rel of out.split('\0').filter(Boolean)) { if (!fs.existsSync(path.join(ROOT, rel))) continue; scanFile(path.join(ROOT, rel), rel); scanned++; }
-  } else if (/\.zip$/i.test(a)) scanned += scanZip(a);
+  } else if (/\.(zip|apk)$/i.test(a)) scanned += scanZip(a);
   else if (fs.statSync(a).isDirectory()) scanned += walk(a);
   else { scanFile(a, a); scanned++; }
 }

@@ -31,6 +31,10 @@ dist/
 !.env.example
 *.pem
 *.key
+*.keystore
+*.jks
+chave-senha.txt
+*.apk
 
 # Dependências / saídas de teste
 node_modules/

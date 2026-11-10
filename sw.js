@@ -8,7 +8,7 @@ const CORE = [
   './iris/themes.css', './iris/iris.css', './seed/seed-casal.js',
   './iris/core/text.js', './iris/core/schema.js', './iris/core/risk.js', './iris/core/store.js', './iris/core/audit.js', './iris/core/memory.js',
   './iris/core/briefing.js', './iris/core/tools.js', './iris/core/specialists.js', './iris/core/intents.js',
-  './iris/voice/mic.js', './iris/voice/stt.js', './iris/voice/tts.js', './iris/voice/remote.js', './iris/voice/session.js',
+  './iris/voice/mic.js', './iris/voice/stt.js', './iris/voice/tts.js', './iris/voice/remote.js', './iris/voice/native.js', './iris/voice/session.js',
   './iris/ui/dom.js', './iris/ui/charts.js', './iris/ui/orb.js', './iris/ui/settings.js', './iris/ui/panel.js', './iris/ui/live-panels.js', './iris/ui/dashboard.js', './iris/ui/padrinhos-fotos.js', './iris/boot.js',
 ];
 // Opcionais: existem no pacote privado; no deploy público podem não existir.

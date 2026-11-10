@@ -11,6 +11,8 @@ Legenda: ✅ implementado e testado · 🟡 implementado, **não** verificado co
 | PWA offline (casca do app) | ✅ | Testado em Chromium; voz **não** funciona offline |
 | IA externa (Anthropic / compatível OpenAI) | 🟡 | Verificado contra upstream falso; **sem chave real não houve teste** |
 | STT e TTS premium via backend | 🟡 | Idem. O STT remoto foi exercitado com microfone falso do Chromium + backend mock |
+| APK Android (WebView + voz nativa) | 🟡 | Compila, é assinado e passa na verificação estrutural (manifest, permissões, conteúdo, assinatura). **Nunca foi executado em aparelho ou emulador.** O lado JavaScript da ponte foi testado com uma ponte simulada. Pode haver falhas só visíveis no Android real |
+| APK na Play Store | ❌ | Assinatura própria e ícone sem versão adaptativa; serve para instalar direto (sideload) |
 | Sincronização entre celulares | ❌ | Os dados são locais por aparelho. Mover = exportar/importar JSON. Próximo passo: login + banco com regras de acesso |
 | Login por pessoa (Gabriel/Isabelle) | ❌ | Há só o seletor "falando como" (sem biometria de voz). Senha do backend é compartilhada |
 | Wake word "Íris" | ❌ | PWA não escuta em segundo plano; reconhecimento contínuo gasta bateria e envia áudio ao Google |

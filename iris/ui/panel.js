@@ -35,7 +35,7 @@
     const modeBtn = h('button', { class: 'iris-icon-btn', 'aria-label': 'Reduzir para ver o app', onclick: () => setMode(mode === 'peek' ? 'full' : 'peek') }, icon('back'));
     const consentEl = h('div', { class: 'iris-consent', hidden: true, role: 'alertdialog', 'aria-labelledby': 'iris-consent-t' },
       h('div', {}, h('h3', { id: 'iris-consent-t', text: 'Antes de usar a voz' }),
-        h('p', { text: 'Para entender o que você fala, o navegador usa o serviço de reconhecimento de voz dele. No Chrome, o áudio é enviado ao Google para virar texto. Eu não guardo áudio e não envio fotos nem listas de convidados.' }),
+        h('p', { text: 'Para entender o que você fala, o navegador usa o serviço de reconhecimento de voz dele. No Chrome e no Android, o áudio é enviado ao Google para virar texto. Eu não guardo áudio e não envio fotos nem listas de convidados.' }),
         h('p', { text: 'O microfone só liga quando você toca no botão, e aparece sempre que está ligado. Se preferir, escreva: faz tudo igual.' }),
         h('div', { class: 'iris-msg-actions' },
           h('button', { class: 'iris-btn iris-btn--primary', onclick: () => { store.setConsent('voice', true); consentEl.hidden = true; session.startListening(); } }, 'Concordo, usar a voz'),

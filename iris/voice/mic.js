@@ -4,7 +4,9 @@
   if (typeof module === 'object' && module.exports) module.exports = api;
 })(typeof globalThis !== 'undefined' ? globalThis : this, function (Iris, root) {
   'use strict';
+  const nat = () => !!(root.IrisAndroid && Iris.native);
   const secure = () => {
+    if (nat()) return true;
     if (typeof root.isSecureContext === 'boolean') return root.isSecureContext;
     const l = root.location || {}; return l.protocol === 'https:' || /^(localhost|127\.0\.0\.1|\[::1\])$/.test(l.hostname || '');
   };
@@ -12,6 +14,7 @@
 
   /** 'granted' | 'denied' | 'prompt' | 'insecure' | 'unsupported' */
   async function permissionState() {
+    if (nat()) return root.IrisAndroid.hasMicPermission() ? 'granted' : 'prompt';
     if (!secure()) return 'insecure';
     if (!hasMedia()) return 'unsupported';
     try { const r = await navigator.permissions.query({ name: 'microphone' }); return r.state; } catch (_) { return 'prompt'; }
@@ -28,6 +31,7 @@
 
   /** Pede permissão (mostra o aviso do navegador) e SOLTA o microfone imediatamente. Retorna 'granted' ou o motivo. */
   async function preflight() {
+    if (nat()) return Iris.native.requestMic();
     const st = await permissionState();
     if (st === 'insecure' || st === 'unsupported' || st === 'denied') return st;
     try {

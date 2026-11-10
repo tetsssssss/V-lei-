@@ -33,6 +33,19 @@ No Chrome do celular abra **http://localhost:8080** (para o Chrome, localhost é
 
 **Permissão do microfone:** quando o Chrome perguntar, toque em *Permitir*. Se negou sem querer: cadeado ao lado do endereço → *Configurações do site* → *Microfone* → *Permitir*. Em app instalado: Android → Configurações → Apps → Nosso Sim → Permissões.
 
+## 3b. APK para Android (instalar sem Chrome nem hospedagem)
+Dois arquivos, mesma assinatura:
+| APK | Conteúdo | Uso |
+|---|---|---|
+| `NossoSim-Iris-v3.0.0-PRIVADO.apk` | Com **seus dados e fotos reais** | **Só para vocês dois.** Não compartilhe, não publique: qualquer pessoa com o arquivo consegue extrair os dados. |
+| `NossoSim-Iris-v3.0.0-PUBLICO.apk` | Sem dados pessoais (abre vazio; importe o backup JSON) | Pode ser compartilhado |
+
+**Instalar:** copie o APK para o celular → toque nele → se o Android pedir, permita "instalar apps desta fonte" para o app que o abriu (Arquivos/Chrome) → o Play Protect pode avisar "app não verificado" (é assinado por uma chave nossa, não pela Play Store): *Instalar mesmo assim*. Requer **Android 7 ou superior**.
+**Voz no APK:** o WebView do Android não tem a API de voz do Chrome, então o APK usa o **reconhecimento e a síntese nativos do Android**. Precisa do app **Google** atualizado (reconhecimento) e de um motor de voz com **português do Brasil** (Configurações → Idioma → Saída de texto para fala). Como no Chrome, o áudio passa pelo serviço de voz do Google; o consentimento aparece antes do 1º uso. O microfone só liga quando você toca e é cancelado ao sair do app.
+**Dados e backup:** ficam dentro do app. **Desinstalar apaga tudo**: antes, use *Salvar backup* (vai para a pasta Downloads). Atualizações só mantêm os dados se o novo APK for assinado com a **mesma chave** (`nosso-sim-chave-de-assinatura.keystore` + `chave-senha.txt`). **Guarde esses dois arquivos em lugar seguro e nunca os publique.**
+**Recursos:** atalho "Conversar com a Íris" ao segurar o ícone, botão voltar fecha a Íris/janelas antes de sair, importar backup e fotos pelo seletor de arquivos, links externos abrem no navegador.
+**Rebuild:** `node scripts/build-apk.mjs --variant private|public --out <pasta>` (precisa dos pacotes do Ubuntu `aapt apksigner dalvik-exchange libandroid-23-java android-framework-res zipalign`). Para usar o backend de IA no APK: `--api https://seu-backend` (e `ALLOWED_ORIGINS=https://appassets.androidplatform.net` no backend).
+
 ## 4. Backend opcional (IA e voz premium)
 Nada disso é necessário. Sem ele a tela mostra **"IA externa não configurada"**.
 ```bash
