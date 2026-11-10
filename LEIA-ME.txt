@@ -1,0 +1,59 @@
+NOSSO SIM - ATELIÊ DO CASAMENTO
+==============================
+
+Um presente interativo que pode virar um aplicativo completo.
+
+ABRIR NO COMPUTADOR
+1. Extraia o ZIP.
+2. Dê dois cliques em index.html.
+3. O painel funciona sem instalar nada e registra as mudanças localmente no navegador.
+
+PUBLICAR E ABRIR NO CELULAR
+1. Envie a pasta do projeto para um serviço de hospedagem estática (ex.: Netlify Drop).
+2. Abra o endereço HTTPS no celular.
+3. Se o navegador oferecer, toque em "Adicionar à tela inicial" ou "Instalar app".
+4. Após o primeiro acesso on-line, a estrutura básica do app pode ficar disponível off-line via Service Worker.
+
+RECURSOS IMPLEMENTADOS
+- Painel responsivo para computador e celular.
+- Configurações: nomes, data, cidade, estilo, orçamento, convidados e mensagem surpresa.
+- Orçamento: previsão, pagamentos, distribuição por categoria, reserva e alertas.
+- Lista de convidados: grupos, acompanhantes, confirmações e busca.
+- Fornecedores: propostas, status, comentários e envio sem duplicação para orçamento.
+- Cerimônia: checklist e cronograma editável.
+- Ideias: votações separadas para cada pessoa, com consensos e divergências.
+- Seis consultores locais baseados em regras: financeiro, buffet, cerimônia, fornecedores, convidados e decisões.
+- Salvar dados no navegador, exportar e importar backup JSON.
+- PWA: manifest, ícones e cache básico.
+
+IMPORTANTE
+- Os dados ficam em localStorage de cada navegador. Não existe sincronização simultânea entre dois celulares.
+- Para mover dados entre aparelhos, exporte o backup JSON e importe no segundo aparelho.
+- Não coloque informações extremamente sensíveis de terceiros sem consentimento.
+- Os consultores são heurísticas locais, não modelos generativos conectados a serviços externos.
+- Cotações inseridas não são preços de mercado verificados; são números informados pelos usuários.
+- O botão de "Apagar dados" exclui o estado local; faça backup antes.
+
+PRÓXIMA FASE (OPCIONAL)
+- Autenticação e banco de dados (ex.: Supabase) para sincronização em tempo real.
+- Convite individual e perfis do casal com permissões de edição.
+- Chat de agentes de IA com integração de propostas e comparação de contratos.
+- Upload de fotos, contratos, álbuns de inspiração, lembretes e calendário compartilhado.
+- Notificações, RSVP por link, controle de parcelas e orçamento por cotação.
+
+VERSÃO: Protótipo 1.0 | Novembro de 2026
+
+
+ATUALIZAÇÃO V2 - GABRIEL & ISABELLE
+Data de referência: 13/11/2027 | Chácara Veneza, Agudos, região Bauru.
+Novas abas: Padrinhos e entradas; Catálogo de doces Elizete (simulação); Presentes da casa nova; Chácara e atrações.
+Convidados da relação de fotos: 83 adultos + 19 crianças = 102 previstos; validar nomes, idades e quantidades. Nada confirmado.
+Ainda não temos contrato com a chácara e nem orçamentos oficiais dos fornecedores pesquisados. Não presumir contratação.
+A pesquisa de presentes inclui dez sites para consulta, não comparação completa de SKU em dez sites. Só há preços pontuais verificados.
+O projeto contém dados pessoais de convidados em fontes_do_casal. NÃO publique esta pasta com PDFs/imagens em site aberto; faça deploy apenas dos arquivos públicos necessários.
+Arquivo CONTINUAR_NO_CLAUDE_SONNET.md com orientações de continuidade.
+
+ATUALIZAÇÃO V2.1 - FOTOS DO CASAL
+Quatro fotos do casal foram incluídas na capa e na aba Nossa história.
+O site público contém as quatro fotos. Só publique com consentimento de Gabriel e Isabelle.
+O pacote para Claude contém referências privadas em pasta separada: não enviar essa pasta para a hospedagem pública.

@@ -1,0 +1,44 @@
+# ============================================================
+# PRIVACIDADE — este repositório GitHub é PÚBLICO.
+# Nada abaixo pode ser commitado: contém dados pessoais de convidados,
+# fotos (inclusive de criança), PDFs de listas e chaves de API.
+# Esses itens existem só no ZIP privado de desenvolvimento.
+# ============================================================
+
+# Dados reais do casal / convidados / padrinhos (seed gerado do original)
+private/
+seed/
+fontes_do_casal/
+referencias_privadas/
+fotos_padrinhos/
+
+# Fotografias (casal e padrinhos) — só no pacote privado
+assets/casal/
+assets/padrinhos/
+
+# Prints do app original (mostram dados reais)
+preview-*.png
+
+# Backups exportados pelo app e pacotes gerados
+backups/
+nosso-sim-backup-*.json
+dist/
+*.zip
+
+# Segredos e ambiente
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# Dependências / saídas de teste
+node_modules/
+tests/e2e/out/
+tests/e2e/.tmp/
+test-results/
+playwright-report/
+
+# Sistema
+.DS_Store
+Thumbs.db

@@ -1,0 +1,17 @@
+/* Íris · temas por tokens. "romantico" é o padrão (coerente com o Nosso Sim); "jarvis" é o tema futurista.
+   Os tokens valem para a tela de voz (#iris-root) e para a Central de Comando (.iris-central). */
+#iris-root, .iris-central, .iris-fab {
+  --i-bg: #fbf7f2; --i-bg-2: #f6ece9; --i-surface: #ffffff; --i-surface-2: #f8edf0; --i-ink: #342a2e; --i-muted: #75636a;
+  --i-line: #eadfe0; --i-accent: #633d4b; --i-accent-2: #4d303b; --i-accent-ink: #ffffff;
+  --i-glow: #e8bf90; --i-glow-2: #d28a97; --i-pupil: #2a1720; --i-orb-1: #6a4455; --i-orb-2: #4a2c3a; --i-orb-3: #24121b; --i-core-1: #fff7e8; --i-you: #efe3e5; --i-focus: #b87a86;
+  --i-ok: #3d6e5e; --i-warn: #9a5f1d; --i-danger: #a63f3f; --i-chart-1: #633d4b; --i-chart-2: #c49a65; --i-chart-3: #a96974; --i-chart-4: #427565; --i-chart-5: #8a6f9e;
+  --i-shadow: 0 18px 60px rgba(54, 34, 42, .16); --i-radius: 22px;
+  --i-serif: Georgia, 'Times New Roman', serif; --i-sans: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+}
+#iris-root[data-iris-theme="jarvis"], .iris-central[data-iris-theme="jarvis"], .iris-fab[data-iris-theme="jarvis"] {
+  --i-bg: #08131d; --i-bg-2: #0c1d2c; --i-surface: #0f2233; --i-surface-2: #132c41; --i-ink: #e6f6ff; --i-muted: #93b6c9;
+  --i-line: #1f3d54; --i-accent: #5fd6ff; --i-accent-2: #2aa8d8; --i-accent-ink: #04202e;
+  --i-glow: #7be3ff; --i-glow-2: #3a8dff; --i-pupil: #02090f; --i-orb-1: #0f3a56; --i-orb-2: #0a2638; --i-orb-3: #030d15; --i-core-1: #ecfdff; --i-you: #14344b; --i-focus: #7be3ff;
+  --i-ok: #6fe0b4; --i-warn: #ffc56b; --i-danger: #ff8a8a; --i-chart-1: #5fd6ff; --i-chart-2: #3a8dff; --i-chart-3: #7be3c4; --i-chart-4: #ffc56b; --i-chart-5: #b79bff;
+  --i-shadow: 0 18px 70px rgba(0, 0, 0, .55); color-scheme: dark;
+}
