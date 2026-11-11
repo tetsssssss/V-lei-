@@ -19,15 +19,17 @@
 
   /** Garante a estrutura sem apagar nada que já exista. Muta e devolve `d.v31`. */
   function ensure(d) {
-    const base = defaults(), cur = d.v31 && typeof d.v31 === 'object' && !Array.isArray(d.v31) ? d.v31 : {};
-    const v = { ...base, ...cur, settings: { ...base.settings, ...(cur.settings || {}) } };
-    if (!v.guestMeta || typeof v.guestMeta !== 'object' || Array.isArray(v.guestMeta)) v.guestMeta = {};
+    const base = defaults();
+    const v = d.v31 && typeof d.v31 === 'object' && !Array.isArray(d.v31) ? d.v31 : (d.v31 = {}); // MESMO objeto: referências guardadas continuam válidas
+    for (const k of Object.keys(base)) if (v[k] === undefined || v[k] === null) v[k] = base[k];
+    v.settings = { ...base.settings, ...(typeof v.settings === 'object' ? v.settings : {}) };
+    if (typeof v.guestMeta !== 'object' || Array.isArray(v.guestMeta)) v.guestMeta = {};
     if (!Array.isArray(v.installments)) v.installments = [];
     if (!Array.isArray(v.dayPlan)) v.dayPlan = [];
-    if (!v.ceriNotes || typeof v.ceriNotes !== 'object') v.ceriNotes = {};
-    const p = v.plan && typeof v.plan === 'object' && !Array.isArray(v.plan) ? v.plan : {};
-    v.plan = { ...defaultPlan(), ...p, objects: Array.isArray(p.objects) ? p.objects : [] };
-    d.v31 = v;
+    if (typeof v.ceriNotes !== 'object' || Array.isArray(v.ceriNotes)) v.ceriNotes = {};
+    if (!v.plan || typeof v.plan !== 'object' || Array.isArray(v.plan)) v.plan = defaultPlan();
+    if (!Array.isArray(v.plan.objects)) v.plan.objects = [];
+    if (v.plan.rev === undefined) v.plan.rev = 0;
     return v;
   }
   const uid = (p = 'v') => p + '-' + Math.random().toString(36).slice(2, 8) + Date.now().toString(36).slice(-3);
