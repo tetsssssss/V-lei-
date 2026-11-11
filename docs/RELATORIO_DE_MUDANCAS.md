@@ -140,7 +140,7 @@ Preservação: `index.html` só ganhou tags `<script>`/`<link>` (e o `capacitor.
 | Regressão: baseline V2.1 · Íris · Central · UX · padrinhos · ponte Android | 37/37 · 70/70 · 26/26 · 24/24 · 12/12 · 13/13 | Voz simulada, como antes |
 | Backend + IA externa | 21/21 (+3 novos: IA só redige, consentimento, sem ferramentas, sem nomes) | Servidor real, **IA = mock** |
 Nota de ambiente: neste checkout faltam os arquivos privados (`seed/`, fotos), o que gera 404 e reprova só o item “sem erros de console” das suítes antigas (já era assim antes da V3.1: baseline 36/37). Com stubs vazios nesses caminhos (ignorados pelo git, apagados depois), **todas** passaram.
-Prints das telas: gerados durante o desenvolvimento (não commitados: `.png` está no `.gitignore` por privacidade).
+Prints das telas: gerados só para minha inspeção durante o desenvolvimento; não foram commitados.
 
 ## 4. Falhas que os testes/inspeção acharam e foram corrigidas
 `toMin` aceitava “25:99” · `ensure()` recriava `data.v31` (referências ficavam velhas → remover parcela paga não devolvia o valor) · o módulo da planta só recebia a ponte ao abrir a tela (exportar o dossiê antes quebrava) · **o dossiê “sem valores” vazava um R$ na seção de achados** · texto “null” solto na barra do 3D (`append(null)`) · o **modelo de cronograma gerava conflitos** e “dava a volta” na meia-noite · cerimônia às 18:00 embaralhava a ordem · na vista 3D de um terreno grande as mesas ficavam minúsculas (ganhou “Focando nas mesas”/zoom) · botão duplicado “Exportar ZIP” (título × botão) no teste.
