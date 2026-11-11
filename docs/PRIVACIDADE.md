@@ -9,6 +9,18 @@
 | Áudio da voz | **Não é gravado nem guardado** pela Íris | No modo navegador, o Chrome envia ao serviço de voz dele (Google) para transcrever. Aviso e consentimento antes do 1º uso. |
 | Texto enviado à IA externa (opcional) | Só se vocês ligarem e entrarem no backend | Mínimo necessário, por nível (0 totais · 1 + nomes de fornecedores/ideias/tarefas · 2 + nomes de convidados). **Fotos nunca.** |
 
+## V3.1 — o que fica onde
+| Dado | Onde fica | Sai do aparelho? |
+|---|---|---|
+| Telefones, envio/resposta de RSVP, parcelas, cronograma, planta (medidas e objetos) | dentro de `data.v31` no mesmo `localStorage` do planejamento (entra no backup JSON) | Só se você exportar |
+| **Print da chácara** (imagem) | IndexedDB `nosso-sim-v31` (bytes **fora** do backup JSON; vão só no **ZIP**) | Só se você exportar o ZIP |
+| Link do WhatsApp | montado localmente; abrir envia o **texto** ao WhatsApp (app de terceiros) quando **você** toca em enviar | Sim, para a pessoa escolhida, por ação sua |
+| Exportações para a cerimonialista | arquivo gerado no aparelho; **sem telefones e sem R$ por padrão** | Só como você compartilhar |
+| IA redigindo (opcional) | só o **texto dos achados** (sem ferramentas e sem nomes de convidados); exige IA externa ligada e nível ≥ 1 | Sim, ao backend, se ligado |
+
+### O que ainda está no código público (decisão sua)
+O repositório e o site/APK públicos **não** trazem convidados, padrinhos, fotos, telefones nem medidas. **Mas** o código ainda contém: os nomes do casal (Gabriel e Isabelle), a data de referência, a cidade, o nome/endereço/telefone comercial da Chácara Veneza (listagem pública do local), a lista de presentes e o catálogo de doces. Se quiser site/APK 100% neutros, é preciso trocar isso por padrões genéricos (e dados vindos só do ZIP). Diga e eu faço.
+
 ## Controles
 Revogar a autorização de voz; apagar histórico; ver/corrigir/apagar a memória; retenção do histórico (não guardar / 7 / 30 dias / até apagar); desligar IA externa; sair do backend. Nada é guardado em áudio, então não há "histórico de áudio" a configurar.
 

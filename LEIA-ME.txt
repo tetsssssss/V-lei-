@@ -65,3 +65,12 @@ Nova assistente de voz feminina pt-BR (nome configurável), central de comando c
 - Os dados continuam locais em cada aparelho (nada de sincronização entre celulares).
 - Para rodar, publicar e configurar: docs/COMO_RODAR_A_IRIS.md. Privacidade: docs/PRIVACIDADE.md. O que não está ativo: docs/STATUS_NAO_ATIVO.md.
 - O ZIP de deploy público NÃO traz dados pessoais: abre vazio; importe o backup JSON.
+
+
+ATUALIZAÇÃO V3.1 - CONVITES, PLANTA, PARCELAS E CERIMONIALISTA VIRTUAL
+Novos menus: Convites · WhatsApp, Parcelas e vencimentos, Chácara em planta (2D e 3D, dia/noite), Cronograma do dia, Cerimonialista Virtual, Pacote do aparelho (ZIP).
+- Guia: docs/V3_1_GUIA.md. Hospedagem gratuita (a configurar): docs/HOSPEDAGEM_CLOUDFLARE.md. APK por Capacitor/GitHub Actions: docs/APK_CAPACITOR.md.
+- O app abre VAZIO; os dados entram pelo ZIP privado, no aparelho. Nada de dados pessoais no site, no git ou no APK público.
+- O app não presume medida nem capacidade da chácara: só usa o print calibrado/medidas que VOCÊ informar.
+- Testes: npm test (unitários) e npm run test:e2e (navegador). Veja o relatório em docs/RELATORIO_DE_MUDANCAS.md (seção V3.1).
+

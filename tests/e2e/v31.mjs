@@ -127,6 +127,10 @@ try {
   await go(p, 'cerimonialista');
   const txt = await p.textContent('#v31-cerimonialista');
   check('Cerimonialista lista achados com níveis (conflito de cronograma, parcelas)', /Problema/.test(txt) && /invade/.test(txt) && /parcela\(s\) vencida/.test(txt));
+  const aisleSel = '#v31-cerimonialista input[aria-label="Folga mínima entre mesas em metros"]';
+  await p.fill(aisleSel, '0.1'); await p.press(aisleSel, 'Tab'); await sleep(250); const rej = (await data(p)).v31.settings.minAisle;
+  await p.fill(aisleSel, '0.5'); await p.press(aisleSel, 'Tab'); await sleep(300);
+  check('ajuste da folga mínima: valor absurdo (0,1) é recusado; 0,5 é aceito e persiste', rej === 1 && (await data(p)).v31.settings.minAisle === 0.5 && (await stored(p)).v31.settings.minAisle === 0.5, String(rej));
   check('botão "Ir para" leva à seção certa', await (async () => { await p.locator('#v31-cerimonialista .v31-find', { hasText: 'invade' }).locator('button').first().click(); await sleep(250); return (await p.evaluate(() => window.NossoSim.getSection())) === 'dia'; })());
   await go(p, 'cerimonialista');
   check('IA desligada por padrão: botão de redigir desativado e texto vem das regras', await p.locator('text=Redigir mensagem para a cerimonialista (IA)').isDisabled() && /Conferi o plano/.test(await p.textContent('#v31-cerimonialista .v31-pre')));

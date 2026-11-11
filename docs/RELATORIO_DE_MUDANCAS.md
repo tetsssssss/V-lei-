@@ -100,3 +100,64 @@ Código público-seguro enviado para a branch `claude/peaceful-lovelace-ak2wd7`.
 - **Verificado:** assinatura (`apksigner verify`), manifest/permissões/SDK (`aapt dump`), presença de classes e assets no dex/APK, scan anti-vazamento no APK público (e confirmação de que o scanner **reprova** o privado), 13 verificações do JS da ponte com **ponte simulada**.
 - **NÃO verificado:** o Java **nunca rodou** (sem emulador/aparelho). Riscos conhecidos: comportamento do `SpeechRecognizer` conforme o fabricante e o app Google instalado; `onShowFileChooser`/permissões em versões específicas; ícone sem versão adaptativa. Compilado contra a API 23 (único `android.jar` disponível) com `targetSdk 34`.
 - O variante PRIVADO embute dados pessoais no arquivo: é para uso dos dois, nunca para publicar.
+
+
+---
+
+# V3.1 — convites, planta, parcelas, cronograma, Cerimonialista Virtual, PWA e APK (Capacitor)
+
+Regra mantida: **nada aqui é declarado como testado se não foi executado**; “simulado” está dito.
+
+## 1. O que foi entregue
+| Pedido | Onde | Estado |
+|---|---|---|
+| Convidados e RSVP via WhatsApp (local) | `v31/core/rsvp.js`, tela *Convites · WhatsApp* | ✅ testado (WhatsApp real **não** aberto) |
+| Chácara em planta: print + escala calibrada, mesas, mesa de frios, vista isométrica, dia/noite | `v31/core/{geo,plan,solar}.js`, `v31/ui/planta.js` | ✅ testado com print **sintético** |
+| Parcelas e vencimentos | `v31/core/installments.js`, tela *Parcelas e vencimentos* | ✅ |
+| Cronograma do dia | `v31/core/schedule.js`, tela *Cronograma do dia* | ✅ |
+| Exportações para a cerimonialista | `v31/core/exports.js` (dossiê HTML, CSV, PNG, ZIP) | ✅ |
+| Cerimonialista Virtual (regras; IA só redige) | `v31/core/ceri.js`, `Iris.remote.draft` | ✅ regras · 🟡 IA só com **mock** |
+| App abre vazio e importa o ZIP privado no aparelho | `v31/core/zip.js`, `v31/ui/kit.js` (tela *Pacote do aparelho*) | ✅ |
+| PWA | `sw.js` (cache v3.1), `build-packages.mjs --frontend-only` | ✅ Chromium, CSP, offline |
+| APK via Capacitor no GitHub Actions | `capacitor/`, `.github/workflows/android-apk.yml`, `iris/voice/capacitor.js` | 🟡 **APK nunca compilado** |
+| Hospedagem Cloudflare Pages | `docs/HOSPEDAGEM_CLOUDFLARE.md` | só documentado, **não configurado** |
+
+Preservação: `index.html` só ganhou tags `<script>`/`<link>` (e o `capacitor.js`); **nenhuma** função antiga foi alterada. Os dados novos vivem em `data.v31` (aditivo; `normalize()` já preserva chaves extras). As suítes antigas continuam passando (seção 3).
+
+## 2. Decisões e o que NÃO foi presumido (regra 2)
+- **Nenhuma medida/capacidade da Chácara Veneza foi inventada.** A planta só tem metros depois que o usuário calibra o print (2 pontos + distância real) ou informa a área; sem escala, o app **recusa** criar objetos (testado). Zonas (cerimônia, pista, cobertura…) só nascem de retângulo **desenhado** pelo usuário.
+- Mesas/bar/palco vêm com tamanho **sugerido e rotulado** (“não é medida do seu fornecedor”); ao editar, o selo some.
+- “Folga mínima entre mesas” (1,0 m) é **regra de bolso configurável**, rotulada como tal.
+- Coordenadas do pôr do sol: **aproximadas da cidade**, editáveis. Resultado conferido contra referência independente (São Paulo ≈18:22 + ~10 min de longitude ⇒ ≈18:32; calculado 18:35).
+- WhatsApp: o app só monta `wa.me`; **não envia**. “WhatsApp aberto” ≠ “mensagem enviada”. Presença só muda quando o usuário registra a resposta.
+
+## 3. Testes executados (última rodada)
+| Suíte | Resultado | Real ou simulado |
+|---|---|---|
+| Unitários (`npm test`) | 94 ok, 1 pulado (já existia) — **24 novos** (núcleo V3.1 e adaptador Capacitor) | Node real; Capacitor com plugins **simulados** |
+| **V3.1 e2e** (`tests/e2e/v31.mjs`) | **65/65** no código-fonte **e** 64/64 no pacote público (CSP) | Chromium real: arrastar com mouse, calibrar, importar/baixar arquivos de verdade; **print sintético**, WhatsApp bloqueado |
+| PWA no pacote público (`pwa.mjs`) | 17/17 (inclui as telas V3.1 **offline**) | Chromium real |
+| Regressão: baseline V2.1 · Íris · Central · UX · padrinhos · ponte Android | 37/37 · 70/70 · 26/26 · 24/24 · 12/12 · 13/13 | Voz simulada, como antes |
+| Backend + IA externa | 21/21 (+3 novos: IA só redige, consentimento, sem ferramentas, sem nomes) | Servidor real, **IA = mock** |
+Nota de ambiente: neste checkout faltam os arquivos privados (`seed/`, fotos), o que gera 404 e reprova só o item “sem erros de console” das suítes antigas (já era assim antes da V3.1: baseline 36/37). Com stubs vazios nesses caminhos (ignorados pelo git, apagados depois), **todas** passaram.
+Prints das telas: gerados durante o desenvolvimento (não commitados: `.png` está no `.gitignore` por privacidade).
+
+## 4. Falhas que os testes/inspeção acharam e foram corrigidas
+`toMin` aceitava “25:99” · `ensure()` recriava `data.v31` (referências ficavam velhas → remover parcela paga não devolvia o valor) · o módulo da planta só recebia a ponte ao abrir a tela (exportar o dossiê antes quebrava) · **o dossiê “sem valores” vazava um R$ na seção de achados** · texto “null” solto na barra do 3D (`append(null)`) · o **modelo de cronograma gerava conflitos** e “dava a volta” na meia-noite · cerimônia às 18:00 embaralhava a ordem · na vista 3D de um terreno grande as mesas ficavam minúsculas (ganhou “Focando nas mesas”/zoom) · botão duplicado “Exportar ZIP” (título × botão) no teste.
+
+## 5. NÃO executado / pendente
+- **APK**: nunca compilado nem executado (ver `APK_CAPACITOR.md`). Voz, microfone, compartilhar arquivo, WhatsApp e importar ZIP no Android real: **não testados**.
+- **Print verdadeiro da chácara e medidas reais**: ainda não fornecidos; toda a planta foi exercitada com imagem fictícia.
+- **Toque (celular) para arrastar/zoom** na planta: testado só com mouse e viewport de celular, não com dedo.
+- **Cloudflare Pages**: não configurado. **IA real**: não testada. Desempenho em aparelho: não medido.
+- Fotos de capa do casal (`assets/casal/`) não entram pelo ZIP.
+
+## 6. Estado do GitHub (regra 3)
+Branches: o trabalho está na branch da sessão (`ccr-2f1349ca-0wbz8s`) e na `claude/peaceful-lovelace-ak2wd7`, que você indicou. **O remoto continua sem `main`**; por isso **nenhum PR foi criado** (você pediu para criar a `main` ou abrir contra a branch que indicar apenas quando pedir PR).
+
+## 7. Ideias extras (separadas do pedido, por ordem de benefício)
+1. Neutralizar o site/APK público (nomes, data, chácara) lendo tudo do ZIP — hoje restam no código (ver `PRIVACIDADE.md`).
+2. Passar a planta a ser editável por toque com “pinça” e menu de alças (girar/redimensionar arrastando).
+3. Importar contatos do celular para preencher telefones (com permissão), em vez de digitar.
+4. Lista de “quem trazer/quem fornece” por mesa (ex.: mesa de frios com responsável e horário de montagem) ligada ao cronograma.
+5. Aviso de chuva/previsão do tempo na semana do casamento (exige internet; opt-in).
