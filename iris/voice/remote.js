@@ -141,7 +141,13 @@
     };
   }
 
-  const apiObj = { configuredEndpoint, health, login, logout, loggedIn, llmReady, contextFor, sanitizeToolResult, ask, sttAdapter, ttsAdapter, base };
+  /** Só REDIGIR: manda um texto pronto (achados já calculados por regras) e devolve a redação. Sem ferramentas, sem contexto do app. */
+  async function draft(prompt) {
+    const r = await api('/chat', { method: 'POST', body: JSON.stringify({ messages: [{ role: 'user', content: String(prompt).slice(0, 6000) }] }) });
+    if (!r.ok) throw new Error(r.status === 401 ? 'Sessão da IA externa expirou. Entre de novo nas configurações da Íris.' : r.status === 429 ? 'Limite de uso da IA externa atingido por agora.' : 'A IA externa não respondeu agora.');
+    return String((await r.json()).text || '').trim();
+  }
+  const apiObj = { draft, configuredEndpoint, health, login, logout, loggedIn, llmReady, contextFor, sanitizeToolResult, ask, sttAdapter, ttsAdapter, base };
   Iris.remote = apiObj;
   return apiObj;
 });
