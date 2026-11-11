@@ -70,6 +70,16 @@ try {
   check('o SpeechRecognition do navegador NÃO foi usado nesse modo', (await page.evaluate(() => window.__s.rec)) === 0);
   await sleep(400);
   check('TTS externo: a resposta foi sintetizada pelo backend (e não pelo speechSynthesis)', count(/POST \/api\/iris\/tts 200/) >= t0 + 1 && (await page.evaluate(() => window.__s.spoken)) === spoken0);
+  // 5b) Cerimonialista Virtual: a IA só REDIGE (V3.1) — gating por consentimento e conteúdo enviado
+  await page.keyboard.press('Escape'); await sleep(150); await page.evaluate(() => NossoSim.navigate('cerimonialista')); await sleep(300);
+  const btnCeri = page.locator('button:has-text("Redigir mensagem para a cerimonialista (IA)")');
+  check('Cerimonialista: com nível de privacidade 0 o botão "Redigir (IA)" fica desativado', await btnCeri.isDisabled());
+  await page.evaluate(() => Iris.app.store.setConsent('level', 1)); await page.evaluate(() => NossoSim.render()); await sleep(300);
+  seen.length = 0; const chat0 = count(/POST \/api\/iris\/chat 200/); await btnCeri.click(); await sleep(700);
+  const lastReq = seen.at(-1), sentC = lastReq ? JSON.stringify(lastReq.messages) : "";
+  check('Cerimonialista: com nível ≥1 a IA é chamada UMA vez, sem ferramentas, só com o texto dos achados (sem nomes de convidados)', count(/POST \/api\/iris\/chat 200/) === chat0 + 1 && lastReq && lastReq.tools.length === 0 && /SOMENTE os fatos/.test(sentC) && !/Fictíci|Convidad/.test(sentC), sentC.slice(0, 160));
+  check('Cerimonialista: o texto redigido aparece, rotulado como vindo da IA, e as regras continuam sendo a fonte', /resposta simulada/.test(await page.locator('#v31-cerimonialista .v31-pre').innerText()) && /só reescreve os achados/.test(await page.locator('#v31-cerimonialista').innerText()));
+  await page.evaluate(() => Iris.app.store.setConsent('level', 0)); await page.click('.iris-fab'); await sleep(300);
   // 6) sair apaga o token; IA externa deixa de ser usada
   await page.click('.iris-icon-btn[aria-label="Configurações da Íris"]'); await page.waitForSelector('button:has-text("Sair")'); await page.click('button:has-text("Sair")'); await sleep(200);
   check('"Sair" remove o token e desliga a IA externa', (await page.evaluate(() => sessionStorage.getItem('iris-token'))) === null && (await page.evaluate(() => Iris.app.store.get().consent.externalAI)) === false);
