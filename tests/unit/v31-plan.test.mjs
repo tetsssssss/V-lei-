@@ -72,6 +72,9 @@ test('cronograma: modelo sugerido parte do horário da cerimônia e analisa lacu
   const a = V.schedule.analyze([{ id: '1', start: '10:00', minutes: 30, title: 'a' }, { id: '2', start: '13:00', minutes: 10, title: 'b' }, { id: '3', start: '13:05', minutes: 10, title: 'c' }]);
   assert.equal(a.gaps.length, 1); assert.equal(a.gaps[0].minutes, 150); assert.equal(a.overlaps.length, 1);
 });
+test('cronograma: o modelo sugerido NÃO gera conflitos nem lacunas em nenhum horário de cerimônia', () => {
+  for (const t of ['10:00', '16:30', '18:00', '19:30']) { const a = V.schedule.analyze(V.schedule.suggest(t).map((x, i) => ({ ...x, id: 'i' + i }))); assert.equal(a.overlaps.length, 0, t + ' sobreposições: ' + a.overlaps.map(o => o.a.title + '>' + o.b.title)); assert.equal(a.gaps.length, 0, t); }
+});
 test('cerimonialista: parcelas, RSVP e fornecedores', () => {
   const d = world(); d.settings.date = '2027-11-13'; V.installments.add(d, { budgetId: 'b-foto', label: '1/2', due: '2026-11-01', amount: 100 }); V.installments.add(d, { budgetId: 'b-dj', label: '1/1', due: '2026-11-25', amount: 1800 });
   d.v31.settings.rsvpDeadline = '2026-11-05'; const r = C.check(d, { today: '2026-11-10' }), I = ids(r);

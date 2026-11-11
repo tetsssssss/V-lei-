@@ -16,7 +16,7 @@ const R = makeReporter('V3.1 (convites, parcelas, cronograma, planta, cerimonial
 const srv = await startServer(ROOT), browser = await launch();
 const png = fakeSatellitePng(); const tmp = fs.mkdtempSync(path.join(os.tmpdir(), 'v31e2e-')); const pngFile = path.join(tmp, 'print-ficticio.png'); fs.writeFileSync(pngFile, png);
 const fix = () => { const d = fixtureV2(); d.settings.date = '2027-11-13'; return JSON.stringify(d); };
-const shot = (p, n) => SHOTS ? p.screenshot({ path: path.join(SHOTS, n + '.png') }) : null;
+const shot = async (p, n) => { if (!SHOTS) return; await p.evaluate(() => window.scrollTo(0, 0)); await p.screenshot({ path: path.join(SHOTS, n + '.png') }); };
 const go = async (p, k) => { await p.evaluate(k => window.NossoSim.navigate(k), k); await sleep(250); };
 const data = p => p.evaluate(() => JSON.parse(JSON.stringify(window.NossoSim.getData())));
 const stored = (p) => p.evaluate(k => JSON.parse(localStorage.getItem(k)), STORAGE_KEY);
@@ -73,7 +73,7 @@ try {
   check('mesa de frios existe, sem lugares', d.v31.plan.objects.some(o => o.type === 'mesa-frios' && o.seats === 0));
   await p.click('text=Distribuir convites nas mesas'); await sleep(250); d = await data(p);
   check('distribuir convites: todos os 3 convites ganham mesa (2 mesas × 8 lugares)', Object.values(d.v31.guestMeta).filter(m => m.table).length === 3, JSON.stringify(d.v31.guestMeta));
-  await shot(p, 'planta-2d');
+  await p.evaluate(() => { const dd = window.NossoSim.getData(); }); await shot(p, 'planta-2d');
   // 3D dia/noite
   await p.click('text=Vista 3D'); await sleep(300);
   check('vista 3D renderiza com polígonos (mesas extrudadas) e ao menos uma imagem de chão', await p.evaluate(() => { const s = document.querySelector('#v31-planta svg.v31-iso'); return !!s && s.querySelectorAll('polygon').length > 12 && s.querySelectorAll('image').length === 1; }));

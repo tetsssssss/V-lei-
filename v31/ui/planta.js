@@ -4,7 +4,7 @@
   'use strict';
   const V = window.V31, K = V.kit, { h, s } = K, G = V.geo, P = V.plan, D = V.data;
   let ns = null, root = null;
-  const st = { view: 'plan', tool: 'select', sel: null, zoom: 0, calib: null, night: false, hour: null, rot: 0, imgUrl: null, imgKey: null, imgMissing: false, grid: null, drag: null, draw: null };
+  const st = { view: 'plan', tool: 'select', sel: null, zoom: 0, calib: null, night: false, hour: null, rot: 0, imgUrl: null, imgKey: null, imgMissing: false, grid: null, drag: null, draw: null, isoFocus: true, isoZoom: 1 };
   const dd = () => ns.getData(), vv = () => D.ensure(dd());
   const save = () => ns.save();
   const fmt = n => (Math.round(n * 100) / 100).toString().replace('.', ',');
@@ -67,9 +67,10 @@
     const T = (x, y, z = 0) => { const [rx, ry] = rotPt(x, y, q, W, Hh); return G.iso(rx, ry, z, 1); };
     const corners = [[0, 0], [W, 0], [W, Hh], [0, Hh]].map(([x, y]) => T(x, y));
     const maxZ = Math.max(4, ...v.plan.objects.map(o => D.num(o.height)));
-    const xs = corners.map(c => c[0]), ys = corners.map(c => c[1]); const pad = Math.max(W, Hh) * 0.06 + 1;
-    const x0 = Math.min(...xs) - pad, x1 = Math.max(...xs) + pad, y0 = Math.min(...ys) - pad - maxZ, y1 = Math.max(...ys) + pad, VW = x1 - x0, VH = y1 - y0;
-    const svg = s('svg', { xmlns: 'http://www.w3.org/2000/svg', viewBox: `${x0} ${y0} ${VW} ${VH}`, width: forExport ? 1800 : '100%', height: forExport ? Math.round(1800 * VH / VW) : null, class: 'v31-iso', role: 'img', 'aria-label': `Vista isométrica da chácara, ${dark > 0.5 ? 'à noite' : 'de dia'}` });
+    let pts = corners; if (st.isoFocus && v.plan.objects.length) pts = v.plan.objects.flatMap(o => G.poly(o).flatMap(([x, y]) => [T(x, y), T(x, y, D.num(o.height) + 3)]));
+    const xs = pts.map(c => c[0]), ys = pts.map(c => c[1]); const span = Math.max(Math.max(...xs) - Math.min(...xs), Math.max(...ys) - Math.min(...ys)); const pad = st.isoFocus && pts !== corners ? Math.max(8, span * 0.18) : Math.max(W, Hh) * 0.06 + 1;
+    let x0 = Math.min(...xs) - pad, x1 = Math.max(...xs) + pad, y0 = Math.min(...ys) - pad - (pts === corners ? maxZ : 0), y1 = Math.max(...ys) + pad; if (x1 - x0 < 30) { const c = (x0 + x1) / 2; x0 = c - 15; x1 = c + 15; } const VW = x1 - x0, VH = y1 - y0;
+    const svg = s('svg', { xmlns: 'http://www.w3.org/2000/svg', viewBox: `${x0} ${y0} ${VW} ${VH}`, width: forExport ? 1800 : (st.isoZoom * 100) + '%', height: forExport ? Math.round(1800 * VH / VW) : null, class: 'v31-iso', role: 'img', 'aria-label': `Vista isométrica da chácara, ${dark > 0.5 ? 'à noite' : 'de dia'}` });
     const sky0 = dark > 0.5 ? '#0b1230' : '#cfe6f7', sky1 = dark > 0.5 ? '#2a2f5e' : '#fdf3e4';
     svg.append(s('defs', {}, s('linearGradient', { id: 'sky', x1: 0, y1: 0, x2: 0, y2: 1 }, s('stop', { offset: '0', 'stop-color': dark > 0.05 ? mix('#cfe6f7', '#0b1230', dark) : '#cfe6f7' }), s('stop', { offset: '1', 'stop-color': dark > 0.05 ? mix('#fdf3e4', '#2a2f5e', dark) : '#fdf3e4' })),
       s('radialGradient', { id: 'glow' }, s('stop', { offset: '0', 'stop-color': '#ffd27a', 'stop-opacity': 0.95 }), s('stop', { offset: '1', 'stop-color': '#ffd27a', 'stop-opacity': 0 }))));
@@ -227,21 +228,27 @@
     const seg = (items, cur, on) => h('div', { class: 'v31-seg', role: 'group' }, ...items.map(([k, l]) => h('button', { type: 'button', class: 'v31-btn' + (cur === k ? ' on' : ''), 'aria-pressed': String(cur === k), onclick: () => on(k) }, l)));
     tb.append(seg([['plan', 'Vista de cima'], ['iso', 'Vista 3D']], st.view, k => { st.view = k; st.tool = 'select'; render(); }));
     if (st.view === 'plan' && size) {
-      tb.append(h('button', { type: 'button', class: 'v31-btn', onclick: () => { st.zoom = Math.max(2, st.zoom * 0.8); render(); } }, '−'), h('button', { type: 'button', class: 'v31-btn', onclick: () => { st.zoom = Math.min(400, st.zoom * 1.25); render(); } }, '+'), h('button', { type: 'button', class: 'v31-btn', onclick: () => { st.zoom = 0; render(); } }, 'Ajustar'), h('button', { type: 'button', class: 'v31-btn' + (st.grid ? ' on' : ''), onclick: () => { st.grid = !(st.grid === true || (st.grid === null && v.plan.base.kind === 'blank')); render(); } }, 'Grade'));
+      tb.append(h('button', { type: 'button', class: 'v31-btn', onclick: () => { st.zoom = Math.max(2, st.zoom * 0.8); render(); } }, '−'), h('button', { type: 'button', class: 'v31-btn', onclick: () => { st.zoom = Math.min(400, st.zoom * 1.25); render(); } }, '+'), h('button', { type: 'button', class: 'v31-btn', onclick: () => { st.zoom = 0; render(); } }, 'Ajustar'), h('button', { type: 'button', class: 'v31-btn', disabled: !v.plan.objects.length, onclick: focusObjects }, 'Focar nas mesas'), h('button', { type: 'button', class: 'v31-btn' + (st.grid ? ' on' : ''), onclick: () => { st.grid = !(st.grid === true || (st.grid === null && v.plan.base.kind === 'blank')); render(); } }, 'Grade'));
     }
     if (st.view === 'iso') {
       const S = v.settings, date = d.settings.date || D.todayISO(), sun = V.solar.sunTimes(date, D.num(S.lat), D.num(S.lon), D.num(S.tz, -3)), cer = V.schedule.analyze(v.dayPlan).items.find(i => i.kind === 'cerimonia' && /^cerim/i.test(i.title));
       const minute = st.hour ?? (st.night ? 21 * 60 : 12 * 60), sl = h('input', { type: 'range', min: 300, max: 1380, step: 5, value: minute, 'aria-label': 'Hora do dia' });
       sl.addEventListener('input', () => { st.hour = Number(sl.value); st.night = V.solar.darkness(V.solar.elevation(date, st.hour, D.num(S.lat), D.num(S.lon), D.num(S.tz, -3))) > 0.5; redraw(); const l = tb.querySelector('.v31-hora'); if (l) l.textContent = D.hhmm(st.hour); });
-      tb.append(h('button', { type: 'button', class: 'v31-btn' + (!st.night ? ' on' : ''), onclick: () => { st.night = false; st.hour = 12 * 60 + 30; render(); } }, '☀ Dia'), h('button', { type: 'button', class: 'v31-btn' + (st.night ? ' on' : ''), onclick: () => { st.night = true; st.hour = sun ? Math.min(1380, Math.round(sun.set) + 75) : 21 * 60; render(); } }, '☾ Noite'),
+      tb.append(...[h('button', { type: 'button', class: 'v31-btn', 'aria-label': 'Afastar', onclick: () => { st.isoZoom = Math.max(1, st.isoZoom - 0.5); render(); } }, '−'), h('button', { type: 'button', class: 'v31-btn', 'aria-label': 'Aproximar', onclick: () => { st.isoZoom = Math.min(6, st.isoZoom + 0.5); render(); } }, '+'), h('button', { type: 'button', class: 'v31-btn' + (st.isoFocus ? ' on' : ''), 'aria-pressed': String(st.isoFocus), onclick: () => { st.isoFocus = !st.isoFocus; render(); } }, st.isoFocus ? 'Focando nas mesas' : 'Terreno todo')]);
+      tb.append(...[h('button', { type: 'button', class: 'v31-btn' + (!st.night ? ' on' : ''), onclick: () => { st.night = false; st.hour = 12 * 60 + 30; render(); } }, '☀ Dia'), h('button', { type: 'button', class: 'v31-btn' + (st.night ? ' on' : ''), onclick: () => { st.night = true; st.hour = sun ? Math.min(1380, Math.round(sun.set) + 75) : 21 * 60; render(); } }, '☾ Noite'),
         h('label', { class: 'v31-hr' }, h('span', { class: 'v31-hora', text: D.hhmm(minute) }), sl), cer ? h('button', { type: 'button', class: 'v31-btn', onclick: () => { st.hour = cer.s; st.night = false; render(); } }, `Hora da cerimônia (${cer.start})`) : null,
-        h('button', { type: 'button', class: 'v31-btn', onclick: () => { st.rot = (st.rot + 1) % 4; render(); }, 'aria-label': 'Girar a vista 90 graus' }, '↻ Girar'));
+        h('button', { type: 'button', class: 'v31-btn', onclick: () => { st.rot = (st.rot + 1) % 4; render(); }, 'aria-label': 'Girar a vista 90 graus' }, '↻ Girar')].filter(Boolean));
       if (sun) tb.append(h('span', { class: 'v31-muted', text: `Pôr do sol estimado: ${D.hhmm(Math.round(sun.set))} (cidade, ±5 min)` }));
     }
     tb.append(h('button', { type: 'button', class: 'v31-btn', onclick: async () => { try { const b = await snapshotPng(st.view); K.toast(await K.saveFile(`planta-${st.view}.png`, b)); } catch (e) { K.toast(e.message, true); } } }, 'Baixar PNG'));
     return tb;
   }
 
+  function focusObjects() {
+    const v = vv(), size = G.baseSize(v.plan.base); if (!v.plan.objects.length || !canvasHost) return;
+    const bb = G.bounds(v.plan.objects.flatMap(o => G.poly(o))), w = Math.max(8, bb.maxX - bb.minX) * 1.3, hh = Math.max(8, bb.maxY - bb.minY) * 1.3;
+    st.zoom = D.clamp(Math.min(canvasHost.clientWidth / w, canvasHost.clientHeight / hh), 2, 400); st.pending = { x: (bb.minX + bb.maxX) / 2, y: (bb.minY + bb.maxY) / 2 }; render();
+  }
   function palette() {
     const wrap = h('div', { class: 'v31-card' }, h('h4', { text: 'Adicionar' }));
     const items = Object.entries(P.TYPES).filter(([, t]) => t.kind === 'item'), zones = Object.entries(P.TYPES).filter(([, t]) => t.kind === 'zona');
@@ -276,6 +283,7 @@
       h('div', { class: 'v31-card' }, h('h4', { text: 'Escala' }), h('p', { class: 'v31-muted', text: v.plan.base.kind === 'image' ? `Print ${v.plan.base.wPx}×${v.plan.base.hPx}px · ${fmt(v.plan.base.pxPerM)} px/m · área ${fmt(size.w)} × ${fmt(size.h)} m (conforme sua calibração).` : `Área em branco: ${fmt(size.w)} × ${fmt(size.h)} m (informada por você).` }),
         h('div', { class: 'v31-row' }, v.plan.base.kind === 'image' ? h('button', { type: 'button', class: 'v31-btn small', onclick: () => { st.tool = 'calibrate'; st.calib = { pts: [] }; render(); } }, 'Recalibrar') : null, h('button', { type: 'button', class: 'v31-btn small danger', onclick: () => { if (confirm('Apagar a planta inteira (print, escala e objetos)? Os convites e o cronograma permanecem.')) { const d = dd(); const vv2 = vv(); const key = vv2.plan.base && vv2.plan.base.key; vv2.plan = { base: null, objects: [], rev: 0 }; Object.values(vv2.guestMeta).forEach(m => delete m.table); if (key) K.files.del(key).catch(() => {}); st.imgKey = null; st.sel = null; save(); render(); } } }, 'Apagar planta'))))));
     redraw(); buildInspector();
+    if (st.pending && canvasHost) { canvasHost.scrollLeft = st.pending.x * st.zoom - canvasHost.clientWidth / 2; canvasHost.scrollTop = st.pending.y * st.zoom - canvasHost.clientHeight / 2; st.pending = null; }
   }
   V.planta = { init(n) { ns = n; }, mount(el, n) { root = el; ns = n; render(); }, snapshot, snapshotPng, hasPlan: () => !!(vv().plan.base && G.baseSize(vv().plan.base)) };
 })();

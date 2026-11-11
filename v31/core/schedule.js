@@ -27,13 +27,14 @@
   }
   /** Modelo SUGERIDO. Os offsets são um ponto de partida típico, não uma regra: o casal/cerimonialista ajusta. */
   const TEMPLATE = [
-    [-180, 60, 'Montagem final e conferência da decoração', 'montagem'], [-120, 90, 'Preparação e fotos dos noivos', 'preparacao'], [-45, 45, 'Recepção dos convidados', 'recepcao'],
+    [-180, 60, 'Montagem final e conferência da decoração', 'montagem'], [-120, 75, 'Preparação e fotos dos noivos', 'preparacao'], [-45, 40, 'Recepção dos convidados', 'recepcao'],
     [-5, 5, 'Entrada do cortejo', 'cerimonia'], [0, 40, 'Cerimônia', 'cerimonia'], [40, 30, 'Cumprimentos e fotos em família', 'fotos'], [70, 60, 'Coquetel / mesa de frios', 'coquetel'],
     [130, 20, 'Entrada dos noivos na festa', 'festa'], [150, 90, 'Jantar / buffet', 'jantar'], [240, 120, 'Pista de dança', 'festa'], [360, 30, 'Encerramento e saída', 'encerramento'],
   ];
   function suggest(ceremonyTime) {
     const c = D.toMin(ceremonyTime); if (c === null) throw new Error('Informe o horário da cerimônia (HH:MM).');
-    return TEMPLATE.map(([off, minutes, title, kind]) => ({ start: D.hhmm(c + off), minutes, title, kind, where: '', who: '', note: 'Modelo sugerido — ajuste.' })).filter((_, i, a) => D.toMin(a[i].start) !== null);
+    // itens que começariam antes de 00:00 ou depois de 23:59 são omitidos; os que atravessam a meia-noite são encurtados (sem "dar a volta" no relógio)
+    return TEMPLATE.map(([off, minutes, title, kind]) => ({ a: c + off, minutes, title, kind })).filter(x => x.a >= 0 && x.a < 1440).map(x => ({ start: D.hhmm(x.a), minutes: Math.min(x.minutes, 1440 - x.a), title: x.title, kind: x.kind, where: '', who: '', note: 'Modelo sugerido — ajuste.' }));
   }
   Object.assign(V31, { schedule: { validate, add, update, remove, analyze, suggest } });
   return V31.schedule;
