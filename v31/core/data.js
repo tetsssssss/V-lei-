@@ -37,7 +37,7 @@
   const clamp = (x, a, b) => Math.min(b, Math.max(a, x));
   const todayISO = (now = new Date()) => `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-${String(now.getDate()).padStart(2, '0')}`;
   const hhmm = m => `${String(Math.floor(((m % 1440) + 1440) % 1440 / 60)).padStart(2, '0')}:${String(Math.round(((m % 60) + 60) % 60)).padStart(2, '0')}`;
-  const toMin = s => { const m = /^(\d{1,2}):(\d{2})$/.exec(String(s || '')); return m ? Number(m[1]) * 60 + Number(m[2]) : null; };
+  const toMin = s => { const m = /^(\d{1,2}):(\d{2})$/.exec(String(s || '')); return m && Number(m[1]) < 24 && Number(m[2]) < 60 ? Number(m[1]) * 60 + Number(m[2]) : null; };
   const brl = n => (Number(n) || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
   const dateBR = iso => { const m = /^(\d{4})-(\d{2})-(\d{2})/.exec(String(iso || '')); return m ? `${m[3]}/${m[2]}/${m[1]}` : ''; };
   const daysBetween = (aISO, bISO) => Math.round((Date.UTC(...bISO.split('-').map((x, i) => (i === 1 ? x - 1 : +x))) - Date.UTC(...aISO.split('-').map((x, i) => (i === 1 ? x - 1 : +x)))) / 86400000);
