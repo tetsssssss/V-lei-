@@ -11,7 +11,8 @@ import { execFileSync } from 'node:child_process';
 const ROOT = path.resolve(path.dirname(new URL(import.meta.url).pathname), '..');
 const OUT = path.resolve(process.argv[2] || path.join(ROOT, 'dist'));
 const STAGE_ONLY = process.argv.includes('--stage-only');
-const V = 'NOSSO_SIM_IRIS_V3_0';
+const V = 'NOSSO_SIM_V3_1';
+const FRONTEND_ONLY = process.argv.includes('--frontend-only'); // só a pasta pública (Cloudflare Pages / Capacitor): sem ZIPs, sem backend, sem pacote privado
 const rm = p => fs.rmSync(p, { recursive: true, force: true });
 const mk = p => fs.mkdirSync(p, { recursive: true });
 const cp = (from, to) => { mk(path.dirname(to)); fs.cpSync(from, to, { recursive: true }); };
@@ -27,6 +28,7 @@ function buildPublic(dir) {
   for (const f of ['index.html', 'sw.js', 'manifest.webmanifest']) cp(path.join(ROOT, f), path.join(dir, f));
   cp(path.join(ROOT, 'icons'), path.join(dir, 'icons'));
   cp(path.join(ROOT, 'iris'), path.join(dir, 'iris'));
+  cp(path.join(ROOT, 'v31'), path.join(dir, 'v31'));
   mk(path.join(dir, 'seed')); fs.writeFileSync(path.join(dir, 'seed/seed-casal.js'), STUB_SEED);
   // CSP: o script inline do app é liberado por HASH (sem 'unsafe-inline' em scripts)
   let html = fs.readFileSync(path.join(dir, 'index.html'), 'utf8');
@@ -57,6 +59,11 @@ function buildPrivate(dir) {
 }
 
 const zip = (srcDir, zipPath) => { rm(zipPath); execFileSync('zip', ['-r', '-X', '-q', zipPath, '.'], { cwd: srcDir }); return fs.statSync(zipPath).size; };
+if (FRONTEND_ONLY) {
+  const out = path.join(OUT, 'frontend'); buildPublic(out);
+  try { execFileSync('node', [path.join(ROOT, 'scripts/leak-scan.mjs'), out], { stdio: 'pipe' }); console.log('✔ leak-scan frontend: limpo'); } catch (e) { console.error(`✘ leak-scan FALHOU:\n${e.stdout}${e.stderr}`); process.exit(1); }
+  console.log('frontend público em', out); process.exit(0);
+}
 mk(OUT);
 const stage = path.join(OUT, '_stage'); rm(stage); mk(stage);
 buildPublic(path.join(stage, 'frontend')); buildBackend(path.join(stage, 'backend')); buildPrivate(path.join(stage, 'privado'));

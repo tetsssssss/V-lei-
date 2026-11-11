@@ -41,12 +41,13 @@ try {
     const { context, page } = await openPage(browser, srv.url, { viewport: { width: 390, height: 844 }, serviceWorkers: 'allow' });
     await page.evaluate(() => navigator.serviceWorker.ready); await sleep(800);
     const cached = await page.evaluate(async () => { const keys = await caches.keys(); const c = await caches.open(keys[0]); return { keys, urls: (await c.keys()).map(r => new URL(r.url).pathname) }; });
-    check('service worker instalou (cache v3) mesmo sem fotos opcionais', cached.keys.includes('nosso-sim-v3-0-iris') && cached.urls.includes('/index.html') && cached.urls.includes('/iris/boot.js') && !cached.urls.some(u => /assets\/casal/.test(u)), JSON.stringify(cached.keys));
+    check('service worker instalou (cache v3) mesmo sem fotos opcionais', cached.keys.includes('nosso-sim-v3-1') && cached.urls.includes('/index.html') && cached.urls.includes('/iris/boot.js') && cached.urls.includes('/v31/boot.js') && cached.urls.includes('/v31/ui/planta.js') && cached.urls.includes('/v31/v31.css') && !cached.urls.some(u => /assets\/casal/.test(u)), JSON.stringify(cached.keys));
     await page.evaluate(() => navigator.serviceWorker.ready); await page.reload(); await sleep(500); // passa a ser controlado pelo SW
     await context.setOffline(true); await page.reload(); await page.waitForSelector('#content', { timeout: 8000 });
     check('OFFLINE: o app abre pelo cache e a Íris responde por texto', await page.evaluate(() => !!window.Iris && !!document.querySelector('.iris-fab')));
     await page.click('.iris-fab'); await page.fill('#iris-input', 'quantos dias faltam'); await page.press('#iris-input', 'Enter'); await sleep(500);
     check('OFFLINE: comando local funciona sem rede', /Faltam \d+ dias/.test(await page.locator('.iris-msg--iris').last().innerText()));
+    check('OFFLINE: telas V3.1 (planta, convites, cerimonialista) abrem pelo cache', await (async () => { await page.evaluate(() => window.V31 && 1); await page.keyboard.press('Escape').catch(() => {}); const ok = await page.evaluate(async () => { const ns = window.NossoSim; const out = []; for (const k of ['planta', 'rsvp', 'cerimonialista']) { ns.navigate(k); await new Promise(r => setTimeout(r, 300)); out.push((document.getElementById('v31-' + k) || {}).textContent.length > 50); } return out.every(Boolean) && window.V31.version === '3.1'; }); return ok; })());
     await context.setOffline(false); await context.close();
     const m = await (await fetch(srv.url + 'manifest.webmanifest')).json();
     check('manifest servido com atalho para a Íris', m.shortcuts && /iris=1/.test(m.shortcuts[0].url));

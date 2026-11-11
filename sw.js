@@ -1,8 +1,8 @@
-/* Nosso Sim · Service Worker V3.0
+/* Nosso Sim · Service Worker V3.1
    - Rede primeiro, cache como reserva (mantém o comportamento da V2.1).
    - Instalação RESILIENTE: um arquivo opcional ausente (ex.: fotos privadas no deploy público) não derruba a instalação.
    - Nunca cacheia /api/ (backend opcional da Íris) nem respostas que não sejam 200 same-origin. */
-const CACHE = 'nosso-sim-v3-0-iris';
+const CACHE = 'nosso-sim-v3-1';
 const CORE = [
   './', './index.html', './manifest.webmanifest', './icons/icon-192.png', './icons/icon-512.png',
   './iris/themes.css', './iris/iris.css', './seed/seed-casal.js',
@@ -10,6 +10,8 @@ const CORE = [
   './iris/core/briefing.js', './iris/core/tools.js', './iris/core/specialists.js', './iris/core/intents.js',
   './iris/voice/mic.js', './iris/voice/stt.js', './iris/voice/tts.js', './iris/voice/remote.js', './iris/voice/native.js', './iris/voice/session.js',
   './iris/ui/dom.js', './iris/ui/charts.js', './iris/ui/orb.js', './iris/ui/settings.js', './iris/ui/panel.js', './iris/ui/live-panels.js', './iris/ui/dashboard.js', './iris/ui/padrinhos-fotos.js', './iris/boot.js',
+  './v31/v31.css', './v31/core/data.js', './v31/core/zip.js', './v31/core/geo.js', './v31/core/solar.js', './v31/core/rsvp.js', './v31/core/installments.js', './v31/core/schedule.js', './v31/core/plan.js', './v31/core/ceri.js', './v31/core/exports.js',
+  './v31/ui/kit.js', './v31/ui/planta.js', './v31/ui/sections.js', './v31/boot.js',
 ];
 // Opcionais: existem no pacote privado; no deploy público podem não existir.
 const OPTIONAL = ['./assets/casal/retrato-do-casal.jpg', './assets/casal/momento-especial.jpg', './assets/casal/noite-juntos.jpg', './assets/casal/capa-do-casal.jpg'];
