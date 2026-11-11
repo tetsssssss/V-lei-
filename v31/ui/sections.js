@@ -162,7 +162,7 @@
 
   V.sections = {
     init(n) {
-      ns = n; const at = () => Math.max(1, ns.catalogs.nav().length - 1);
+      ns = n; V.planta.init(n); const at = () => Math.max(1, ns.catalogs.nav().length - 1);
       const reg = (key, title, icon, render) => { ns.registerSection(key, { title, icon, position: at(), render: () => `<div id="v31-${key}" class="v31-root"></div>` }); ns.onRender(sec => { if (sec === key) { const el = document.getElementById('v31-' + key); if (el) { el.replaceChildren(render()); } } }); };
       reg('rsvp', 'Convites · WhatsApp', '✉', rsvpPage); reg('parcelas', 'Parcelas e vencimentos', '◷', parcelasPage);
       ns.registerSection('planta', { title: 'Chácara em planta', icon: '▦', position: at(), render: () => '<div id="v31-planta" class="v31-root"></div>' }); ns.onRender(sec => { if (sec === 'planta') { const el = document.getElementById('v31-planta'); if (el) V.planta.mount(el, ns); } });

@@ -277,5 +277,5 @@
         h('div', { class: 'v31-row' }, v.plan.base.kind === 'image' ? h('button', { type: 'button', class: 'v31-btn small', onclick: () => { st.tool = 'calibrate'; st.calib = { pts: [] }; render(); } }, 'Recalibrar') : null, h('button', { type: 'button', class: 'v31-btn small danger', onclick: () => { if (confirm('Apagar a planta inteira (print, escala e objetos)? Os convites e o cronograma permanecem.')) { const d = dd(); const vv2 = vv(); const key = vv2.plan.base && vv2.plan.base.key; vv2.plan = { base: null, objects: [], rev: 0 }; Object.values(vv2.guestMeta).forEach(m => delete m.table); if (key) K.files.del(key).catch(() => {}); st.imgKey = null; st.sel = null; save(); render(); } } }, 'Apagar planta'))))));
     redraw(); buildInspector();
   }
-  V.planta = { mount(el, n) { root = el; ns = n; render(); }, snapshot, snapshotPng, hasPlan: () => !!(vv().plan.base && G.baseSize(vv().plan.base)) };
+  V.planta = { init(n) { ns = n; }, mount(el, n) { root = el; ns = n; render(); }, snapshot, snapshotPng, hasPlan: () => !!(vv().plan.base && G.baseSize(vv().plan.base)) };
 })();

@@ -88,5 +88,9 @@ test('exportações: CSV Excel pt-BR, anti-fórmula, telefones opcionais e dossi
   d.settings.personA = '<b>X</b>'; const html = E.dossier(d, { findings: C.check(d).findings });
   assert.ok(!html.includes('<b>X</b>') && html.includes('&lt;b&gt;X&lt;/b&gt;')); assert.ok(!html.includes('Orçamento')); assert.ok(!html.includes('(14)'));
   assert.ok(E.dossier(d, { finance: true, phones: true }).includes('(14) 99999-1234'));
+  V.installments.add(d, { budgetId: 'b-foto', label: '1/1', due: '2026-01-01', amount: 321.5 });
+  const fnd = C.check(d, { today: '2026-11-10' }).findings; assert.ok(fnd.some(f => /R\$/.test(f.title)), 'o achado de parcela tem valor');
+  assert.doesNotMatch(E.dossier(d, { findings: fnd }), /R\$/, 'sem a opção de valores, nenhum R$ no dossiê (nem nos achados)');
+  assert.match(E.dossier(d, { findings: fnd, finance: true }), /R\$/);
   assert.match(E.csvSchedule(d), /Início;Fim/); assert.match(E.csvSeating(d), /Mesa;Lugares/); assert.match(E.csvInstallments(d), /Vencimento;Item/);
 });

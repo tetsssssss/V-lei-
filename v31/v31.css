@@ -43,3 +43,4 @@
 .v31-side .v31-card{margin:0 0 12px}
 @media(max-width:900px){.v31-split{grid-template-columns:minmax(0,1fr)}.v31-canvas{max-height:60vh}}
 @media(max-width:520px){.v31-bar{grid-template-columns:56px 1fr 90px}.v31-btn{padding:10px 12px}}
+.sidebar{overflow-y:auto}.sidebar::-webkit-scrollbar{width:6px}.sidebar::-webkit-scrollbar-thumb{background:#ffffff33;border-radius:9px}
