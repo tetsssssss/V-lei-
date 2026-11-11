@@ -65,3 +65,6 @@ www/
 android-cap/
 .gradle/
 local.properties
+capacitor/node_modules/
+capacitor/www/
+capacitor/android/

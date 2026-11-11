@@ -1,17 +1,18 @@
 {
   "name": "nosso-sim-iris",
-  "version": "3.0.0",
+  "version": "3.1.0",
   "private": true,
-  "description": "Nosso Sim (planejamento do casamento) com a assistente de voz \u00cdris. Sem depend\u00eancias de runtime.",
+  "description": "Nosso Sim (planejamento do casamento) com a assistente de voz Íris. Sem dependências de runtime.",
   "engines": {
     "node": ">=20"
   },
   "scripts": {
     "start": "node server/server.mjs",
     "test": "node --test tests/unit/*.test.mjs tests/server/*.test.mjs",
-    "test:e2e": "node tests/e2e/baseline.mjs --root . && node tests/e2e/iris.mjs --root . && node tests/e2e/padrinhos.mjs --root . && node tests/e2e/central.mjs --root . && node tests/e2e/ux.mjs --root . && node tests/e2e/backend.mjs && node tests/e2e/android-bridge.mjs .",
+    "test:e2e": "node tests/e2e/baseline.mjs --root . && node tests/e2e/iris.mjs --root . && node tests/e2e/padrinhos.mjs --root . && node tests/e2e/central.mjs --root . && node tests/e2e/ux.mjs --root . && node tests/e2e/v31.mjs --root . && node tests/e2e/backend.mjs && node tests/e2e/android-bridge.mjs .",
     "build": "node scripts/build-packages.mjs",
     "leak-scan": "node scripts/leak-scan.mjs --tracked",
-    "build:apk": "node scripts/build-apk.mjs --variant public --out dist"
+    "build:apk": "node scripts/build-apk.mjs --variant public --out dist",
+    "build:web": "node scripts/build-packages.mjs dist --frontend-only"
   }
 }

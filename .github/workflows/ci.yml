@@ -1,0 +1,29 @@
+name: Testes
+on:
+  push:
+  pull_request:
+permissions:
+  contents: read
+jobs:
+  unit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22 }
+      - run: npm test
+      - run: node scripts/leak-scan.mjs --tracked
+  e2e-v31:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with: { node-version: 22 }
+      - run: npm i --no-save --no-audit --no-fund playwright@1.63.0 && npx playwright install --with-deps chromium
+      - name: V3.1 no código-fonte
+        run: node tests/e2e/v31.mjs --root .
+      - name: V3.1 e PWA no pacote público (CSP + offline)
+        run: |
+          node scripts/build-packages.mjs dist --frontend-only
+          node tests/e2e/v31.mjs --root dist/frontend
+          node tests/e2e/pwa.mjs dist/frontend

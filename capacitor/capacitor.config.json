@@ -1,0 +1,7 @@
+{
+  "appId": "br.nossosim.app",
+  "appName": "Nosso Sim",
+  "webDir": "www/frontend",
+  "server": { "androidScheme": "https" },
+  "android": { "allowMixedContent": false, "webContentsDebuggingEnabled": false }
+}
