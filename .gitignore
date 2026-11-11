@@ -46,3 +46,22 @@ playwright-report/
 # Sistema
 .DS_Store
 Thumbs.db
+
+# V3.1 — imagens e documentos soltos nunca vão para o git (print do Google, fotos, PDFs, planta exportada)
+*.jpg
+*.jpeg
+*.heic
+*.webp
+*.gif
+*.pdf
+planta-*
+chacara-*
+convidados*.csv
+# imagens de interface permitidas explicitamente (só ícones do app)
+!icons/*.png
+
+# V3.1 — saídas de build (Capacitor / PWA)
+www/
+android-cap/
+.gradle/
+local.properties
